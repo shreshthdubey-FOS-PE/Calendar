@@ -115,7 +115,10 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--bd);
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 25;
+  background: #fff;
 }
 .left, .right { display: flex; align-items: center; gap: 10px; z-index: 2; }
 .nav-btns { display: flex; }
@@ -152,8 +155,22 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 .owner:hover { background: #f2f4f7; }
 
 /* Grid Layouts & Centered Weekday Headers */
-.scroll { overflow: auto; overflow-x: auto; overflow-y: visible; }
 .weekhead, .monthgrid { min-width: 900px; display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); }
+.weekhead {
+  background: #f9fafb;
+  border-bottom: 1px solid var(--bd);
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.weekhead::-webkit-scrollbar {
+  width: 17px;
+  background: transparent;
+}
+.weekhead::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
 .weekhead div {
   text-align: center;
   padding: 10px;
@@ -162,7 +179,6 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   font-size: 11px;
   color: #475467;
   background: #f9fafb;
-  border-bottom: 1px solid var(--bd);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: flex;
@@ -171,7 +187,7 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 }
 .weekhead div:last-child { border-right: 0; }
 
-.monthgrid { grid-auto-rows: minmax(120px, 1fr); overflow: visible; }
+.monthgrid { grid-auto-rows: minmax(120px, 1fr); max-height: 500px; overflow-y: scroll; overscroll-behavior: contain; }
 .day { border-top: 1px solid var(--bd); border-right: 1px solid var(--bd); padding: 7px; cursor: pointer; transition: background 0.12s ease; position: relative; }
 .day:hover { background: #f0f7ff; }
 .day:nth-child(7n) { border-right: 0; }
@@ -212,10 +228,26 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 .more { height: 22px; padding: 3px 7px; color: var(--b); font-weight: 700; cursor: pointer; font-size: 10.5px; border-radius: 4px; display: flex; align-items: center; background: #f0f7ff; }
 .more:hover { background: #e0f0ff; }
 
-/* Week & Day Time Grid Header Centering */
+/* Week & Day Time Grid Header Alignment */
 .time { display: none; min-width: 900px; }
 .time.active { display: block; }
-.thead, .tbody { display: grid; }
+
+.thead {
+  display: grid;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--bd);
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.thead::-webkit-scrollbar {
+  width: 17px;
+  background: transparent;
+}
+.thead::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
 .thead div {
   text-align: center;
   padding: 10px 5px;
@@ -223,7 +255,6 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   font-size: 11px;
   font-weight: 700;
   background: #f9fafb;
-  border-bottom: 1px solid var(--bd);
   color: #475467;
   display: flex;
   flex-direction: column;
@@ -231,38 +262,81 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   justify-content: center;
 }
 .thead div:last-child { border-right: 0; }
-.tbody { height: 640px; position: relative; overflow-y: auto; }
-.times { background: #f9fafb; border-right: 1px solid var(--bd); }
-.times div { height: 50px; border-bottom: 1px solid #f2f4f7; text-align: right; padding: 6px 10px; color: #667085; font-size: 10px; font-weight: 600; }
-.col { position: relative; border-right: 1px solid var(--bd); cursor: pointer; }
+
+.tbody { display: grid; height: 500px; position: relative; overflow-y: scroll; overscroll-behavior: contain; }
+.times { background: #f9fafb; border-right: 1px solid var(--bd); height: 960px; }
+.times div {
+  height: 40px;
+  border-bottom: 1px solid #f2f4f7;
+  text-align: left;
+  padding: 4px 0 0 10px;
+  color: #667085;
+  font-size: 10.5px;
+  font-weight: 500;
+}
+.col { position: relative; border-right: 1px solid var(--bd); cursor: pointer; min-width: 0; height: 960px; max-height: 960px; overflow: hidden; }
 .col:last-child { border-right: 0; }
-.col:hover { background: #fafcff; }
-.hour { height: 50px; border-bottom: 1px solid #f2f4f7; }
+
+/* Cursor Hover Highlight Rule for Hour Slots (Matching Month View) */
+.hour { height: 40px; border-bottom: 1px solid #f2f4f7; transition: background 0.12s ease; }
+.hour:hover { background: #f0f7ff; }
 
 .tevent {
   position: absolute;
   left: 4px;
   right: 4px;
-  min-height: 44px;
-  padding: 6px 9px;
+  height: 36px;
+  max-height: 36px;
+  padding: 4px 7px;
   border-radius: 6px;
   font-size: 10.5px;
   z-index: 2;
   overflow: hidden;
   border-left: 3.5px solid transparent;
-  box-shadow: 0 1px 4px rgba(16,24,40,0.08);
+  box-shadow: 0 1px 3px rgba(16,24,40,0.06);
 }
 .tevent.call { background: var(--ca-bg); border-left-color: var(--ca-bd); color: var(--ca-tx); }
 .tevent.email { background: var(--em-bg); border-left-color: var(--em-bd); color: var(--em-tx); }
 .tevent.meeting { background: var(--me-bg); border-left-color: var(--me-bd); color: var(--me-tx); }
 .tevent.task { background: var(--ta-bg); border-left-color: var(--ta-bd); color: var(--ta-tx); }
 
-.tevent .title-row { font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 5px; }
-.tevent .party { margin-top: 3px; font-weight: 500; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tevent .title-row { font-weight: 700; font-size: 10.5px; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tevent .party { margin-top: 1px; font-weight: 500; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
 .activity-icon { font-size: 11px; line-height: 1; }
 
-.now { position: absolute; left: 70px; right: 0; height: 2px; background: #f04438; z-index: 5; }
+.now { position: absolute; left: 0; right: 0; height: 2px; background: #f04438; z-index: 5; pointer-events: none; }
 .now::before { content: ''; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: #f04438; box-shadow: 0 0 0 2px rgba(240,68,56,0.2); }
+
+/* Toast Notification System */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: #1e293b;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: toastIn 0.2s ease;
+  max-width: 440px;
+  border-left: 4px solid #f04438;
+  line-height: 1.4;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* Hovercard & Drawers */
 .hovercard { position: fixed; display: none; z-index: 100; background: #1e293b; color: #fff; border-radius: 8px; padding: 10px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); font-size: 11px; line-height: 1.55; white-space: nowrap; pointer-events: none; }
@@ -401,18 +475,11 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 
 <script>
 const A = [
-  {id:1, type:"Call", title:"Customer follow-up", party:"Acme Logistics", owner:"Rahul", date:"2026-08-04", time:"10:00"},
-  {id:2, type:"Email", title:"Rate confirmation", party:"Global Cargo Ltd.", owner:"Anita", date:"2026-08-10", time:"11:30"},
-  {id:3, type:"Meeting", title:"Quarterly review", party:"BlueSky Exports", owner:"Rahul", date:"2026-08-12", time:"14:00"},
-  {id:4, type:"Task", title:"Update quotation", party:"NorthStar Freight", owner:"Me", date:"2026-08-17", time:"09:30"},
-  {id:5, type:"Meeting", title:"Data Update Discussion", party:"Orbit Logistics", owner:"Anita", date:"2026-08-21", time:"15:00"},
-  {id:6, type:"Meeting", title:"Meeting with Team", party:"Acme Logistics", owner:"Rahul", date:"2026-08-23", time:"11:00"},
-  {id:10, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", owner:"Me", date:"2026-08-25", time:"10:30"},
-  {id:11, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", owner:"Rahul", date:"2026-08-25", time:"14:00"},
-  {id:12, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", owner:"Anita", date:"2026-08-25", time:"16:15"},
-  {id:7, type:"Meeting", title:"Design System", party:"Freight Partner", owner:"Me", date:"2026-08-26", time:"13:00"},
-  {id:8, type:"Meeting", title:"Meeting with Team", party:"BlueSky Exports", owner:"Rahul", date:"2026-08-26", time:"15:00"},
-  {id:9, type:"Meeting", title:"UI/UX Team Review", party:"Global Cargo Ltd.", owner:"Anita", date:"2026-08-29", time:"11:00"}
+  {id:1, type:"Email", title:"Rate Confirmation", party:"Global Cargo Ltd.", owner:"Anita", date:"2026-08-10", time:"11:00"},
+  {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", owner:"Me", date:"2026-08-25", time:"10:30"},
+  {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", owner:"Rahul", date:"2026-08-25", time:"14:30"},
+  {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", owner:"Anita", date:"2026-08-27", time:"11:00"},
+  {id:5, type:"Meeting", title:"Quarterly Review", party:"BlueSky Exports", owner:"Rahul", date:"2026-08-29", time:"15:00"}
 ];
 
 const C = {Call:"call", Email:"email", Meeting:"meeting", Task:"task"};
@@ -610,51 +677,51 @@ function time() {
     let x = new Date(s);
     x.setDate(s.getDate() + i);
     let ev = visible().filter(a => a.date == key(x));
+    let nowLine = (key(x) == "2026-08-25") ? '<div class="now" style="top:532px"></div>' : '';
     
     o += `<div class="col" onclick="slot(event,'${key(x)}')">
       ${Array.from({length: 24}, () => '<div class="hour"></div>').join("")}
       ${ev.map(a => {
         let z = a.time.split(":");
-        let top = (+z[0] * 50) + (+z[1] / 60 * 50);
+        let top = (+z[0] * 40) + (+z[1] / 60 * 40);
         return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px" onclick="eventClick(event,${a.id})">
           <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
           <div class="party">${a.party}</div>
         </div>`;
       }).join("")}
+      ${nowLine}
     </div>`;
   }
   
   body.innerHTML = o;
-  
-  if (key(d) == "2026-08-25") {
-    body.insertAdjacentHTML("beforeend", '<div class="now" style="top:659px"></div>');
-  }
 
-  // Instant scroll calculation to place earliest activity right at the top
-  const scrollToActivity = () => {
+  // Auto-scroll inside #tbody to place business hours / earliest activity right in front of user
+  const doScroll = () => {
+    let body = document.getElementById("tbody");
     if (!body) return;
     let targetEvs = visible().filter(a => v == "day" ? a.date == key(d) : true);
+    let topPx = 320; // Default 8:00 AM (8 * 40px)
     if (targetEvs.length > 0) {
       let earliestTop = Math.min(...targetEvs.map(a => {
         let [h, m] = a.time.split(':').map(Number);
-        return (h * 50) + (m / 60 * 50);
+        return (h * 40) + (m / 60 * 40);
       }));
-      body.scrollTop = Math.max(0, earliestTop - 20);
-    } else {
-      body.scrollTop = 400; // Default ~8:00 AM
+      topPx = Math.max(0, earliestTop - 40);
     }
+    body.scrollTop = topPx;
   };
 
-  scrollToActivity();
-  requestAnimationFrame(scrollToActivity);
-  setTimeout(scrollToActivity, 50);
+  doScroll();
+  setTimeout(doScroll, 10);
+  setTimeout(doScroll, 50);
+  setTimeout(doScroll, 150);
 }
 
 function slot(e, date) {
   if (e.target.closest(".tevent")) return;
   let r = e.currentTarget.getBoundingClientRect();
   let y = e.clientY - r.top;
-  let h = Math.max(0, Math.min(23, Math.floor(y / 50)));
+  let h = Math.max(0, Math.min(23, Math.floor(y / 40)));
   create(date, pad(h) + ":00");
 }
 
@@ -849,6 +916,25 @@ function show() {
 function closeDrawer(e) {
   if (e && e.target.id != "drawerbg") return;
   document.getElementById("drawerbg").classList.remove("show");
+}
+
+function showToast(message) {
+  let container = document.getElementById("toastContainer");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toastContainer";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+  }
+  let toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerHTML = `<span style="color:#f04438;font-size:15px;flex:none">⚠️</span> <span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.2s ease";
+    setTimeout(() => toast.remove(), 200);
+  }, 4000);
 }
 
 document.addEventListener("click", e => {
