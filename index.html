@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Freightoscope Calendar Prototype</title>
+<style>
+:root {
+  --b: #1e4381;
+  --b-hover: #163465;
+  --b2: #3e6195;
+  --cyan: #1ecbe2;
+  --bd: #eaecf0;
+  --bd-hover: #d0d5dd;
+  --tx: #101828;
+  --tx-sec: #475467;
+  --mu: #667085;
+  --bg: #f8fafc;
+  --ca-bg: #e6f7f5; --ca-bd: #00918e; --ca-tx: #0a4f4b;
+  --em-bg: #f0f1ff; --em-bd: #676dff; --em-tx: #25287a;
+  --me-bg: #e6f9fc; --me-bd: #1ecbe2; --me-tx: #095963;
+  --ta-bg: #e8f4fc; --ta-bd: #0092e4; --ta-tx: #0b4569;
+  --sidebar: #194381;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--tx);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select { font-family: inherit; font-size: inherit; }
+
+.app { min-height: 100vh; padding: 0; max-width: none; margin: auto; display: flex; }
+.shell { min-width: 0; flex: 1; padding: 0 24px 24px; }
+
+header { height: 64px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacing: -0.3px; }
+
+.btn {
+  border: 1px solid var(--bd);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  color: #344054;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+.btn:hover { background: #f9fafb; border-color: #d0d5dd; color: #1d2939; }
+.btn:active { background: #f2f4f7; }
+.primary { background: var(--b); color: #fff; border-color: var(--b); box-shadow: 0 1px 2px rgba(16, 24, 40, 0.1); }
+.primary:hover { background: var(--b-hover); border-color: var(--b-hover); color: #fff; }
+.today { color: var(--b); background: #f0f7ff; border-color: #b2d7ff; }
+.today:hover { background: #e0f0ff; }
+
+/* Filter Dropdown Button with Chevron Icon */
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+}
+.filter-btn .chevron-icon {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.2s ease;
+  color: #667085;
+}
+.filter-btn.open .chevron-icon {
+  transform: rotate(180deg);
+}
+
+/* Sidebar Component */
+.sidebar { width: 220px; flex: 0 0 220px; background: var(--sidebar); color: #fff; min-height: 100vh; overflow: hidden; }
+.brand { height: 56px; display: flex; align-items: center; padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.brand-mark { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #d9e6f5; overflow: hidden; }
+.brand-mark img { width: 100%; height: 100%; object-fit: cover; }
+.brand-name { font-size: 12px; font-weight: 800; letter-spacing: 0.4px; margin-left: 10px; flex: 1; color: #fff; }
+.brand-close { font-size: 22px; font-weight: 300; cursor: pointer; color: rgba(255,255,255,0.7); }
+.brand-close:hover { color: #fff; }
+
+.quick { padding: 10px 10px; background: #234d87; display: flex; gap: 0; }
+.quick input { min-width: 0; width: 100%; height: 30px; border: 0; border-radius: 6px 0 0 6px; padding: 0 10px; font-size: 11px; outline: 0; background: #fff; }
+.quick select { height: 30px; border: 0; border-left: 1px solid #dfe5ec; padding: 0 4px; font-size: 10px; color: #475467; background: #fff; }
+.search-btn { width: 32px; border: 0; background: #102f5d; color: #fff; border-radius: 0 6px 6px 0; cursor: pointer; }
+
+.nav { padding: 8px 0; }
+.nav-item { height: 38px; display: flex; align-items: center; padding: 0 14px; color: rgba(255,255,255,0.88); text-decoration: none; font-size: 12px; gap: 10px; transition: background 0.12s ease; }
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { color: var(--cyan); background: rgba(255,255,255,0.12); font-weight: 700; }
+.nav-icon { width: 16px; text-align: center; font-size: 12px; }
+.nav-arrow { margin-left: auto; font-size: 11px; opacity: 0.7; }
+
+@media(max-width:900px){
+  .sidebar { width: 58px; flex-basis: 58px; }
+  .brand { padding: 0 10px; }
+  .brand-name, .brand-close, .quick, .nav-arrow { display: none; }
+  .nav-item { justify-content: center; padding: 0; }
+  .nav-icon { font-size: 16px; }
+  .shell { padding: 0 12px 16px; }
+}
+
+/* Card & Toolbar */
+.card { background: #fff; border: 1px solid var(--bd); border-radius: 12px; overflow: visible; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06); }
+.toolbar {
+  min-height: 66px;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--bd);
+  position: relative;
+}
+.left, .right { display: flex; align-items: center; gap: 10px; z-index: 2; }
+.nav-btns { display: flex; }
+.nav-btns button { border-radius: 0; }
+.nav-btns button:first-child { border-radius: 8px 0 0 8px; }
+.nav-btns button:last-child { border-left: 0; border-radius: 0 8px 8px 0; }
+
+/* Centered Month / Date Range Label */
+.range {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 16px;
+  font-weight: 700;
+  color: #101828;
+  text-align: center;
+  letter-spacing: -0.2px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.today.off { opacity: .4; pointer-events: none; }
+
+.views { display: flex; border: 1px solid var(--bd); border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
+.views button { border: 0; border-right: 1px solid var(--bd); background: #fff; padding: 7px 15px; color: #475467; font-weight: 600; cursor: pointer; transition: background 0.12s, color 0.12s; }
+.views button:last-child { border-right: 0; }
+.views button:hover { background: #f9fafb; color: #101828; }
+.views button.active { background: var(--b); color: #fff; font-weight: 700; }
+
+.filter { position: relative; }
+.dropdown { display: none; position: absolute; right: 0; top: 44px; width: 220px; background: #fff; border: 1px solid var(--bd); border-radius: 10px; padding: 8px; box-shadow: 0 10px 25px rgba(16,24,40,0.12); z-index: 30; }
+.dropdown.show { display: block; }
+.owner { display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; font-size: 12px; border-radius: 6px; color: #344054; }
+.owner:hover { background: #f2f4f7; }
+
+/* Grid Layouts & Centered Weekday Headers */
+.scroll { overflow: auto; overflow-x: auto; overflow-y: visible; }
+.weekhead, .monthgrid { min-width: 900px; display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); }
+.weekhead div {
+  text-align: center;
+  padding: 10px;
+  border-right: 1px solid var(--bd);
+  font-weight: 700;
+  font-size: 11px;
+  color: #475467;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--bd);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.weekhead div:last-child { border-right: 0; }
+
+.monthgrid { grid-auto-rows: minmax(120px, 1fr); overflow: visible; }
+.day { border-top: 1px solid var(--bd); border-right: 1px solid var(--bd); padding: 7px; cursor: pointer; transition: background 0.12s ease; position: relative; }
+.day:hover { background: #f0f7ff; }
+.day:nth-child(7n) { border-right: 0; }
+.day.muted { background: #fcfcfd; }
+.day.muted .num { color: #98a2b3; }
+
+.date { height: 22px; margin-bottom: 4px; display: flex; align-items: center; }
+.num { font-size: 11px; font-weight: 600; color: #475467; }
+.todaynum { background: var(--b); color: #fff; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 1px 3px rgba(30,67,129,0.3); }
+
+/* Activity Card Styling */
+.event {
+  position: relative;
+  height: 23px;
+  margin: 3px 0;
+  padding: 3px 7px 3px 7px;
+  border-radius: 5px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  color: var(--tx);
+  font-size: 10.5px;
+  font-weight: 600;
+  overflow: hidden;
+  border-left: 3.5px solid transparent;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.event:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+.event .type-label { font-weight: 700; flex: none; }
+.event .party-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+
+.call { background: var(--ca-bg); border-left-color: var(--ca-bd); color: var(--ca-tx); }
+.email { background: var(--em-bg); border-left-color: var(--em-bd); color: var(--em-tx); }
+.meeting { background: var(--me-bg); border-left-color: var(--me-bd); color: var(--me-tx); }
+.task { background: var(--ta-bg); border-left-color: var(--ta-bd); color: var(--ta-tx); }
+
+.more { height: 22px; padding: 3px 7px; color: var(--b); font-weight: 700; cursor: pointer; font-size: 10.5px; border-radius: 4px; display: flex; align-items: center; background: #f0f7ff; }
+.more:hover { background: #e0f0ff; }
+
+/* Week & Day Time Grid Header Centering */
+.time { display: none; min-width: 900px; }
+.time.active { display: block; }
+.thead, .tbody { display: grid; }
+.thead div {
+  text-align: center;
+  padding: 10px 5px;
+  border-right: 1px solid var(--bd);
+  font-size: 11px;
+  font-weight: 700;
+  background: #f9fafb;
+  border-bottom: 1px solid var(--bd);
+  color: #475467;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.thead div:last-child { border-right: 0; }
+.tbody { height: 640px; position: relative; overflow-y: auto; }
+.times { background: #f9fafb; border-right: 1px solid var(--bd); }
+.times div { height: 50px; border-bottom: 1px solid #f2f4f7; text-align: right; padding: 6px 10px; color: #667085; font-size: 10px; font-weight: 600; }
+.col { position: relative; border-right: 1px solid var(--bd); cursor: pointer; }
+.col:last-child { border-right: 0; }
+.col:hover { background: #fafcff; }
+.hour { height: 50px; border-bottom: 1px solid #f2f4f7; }
+
+.tevent {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  min-height: 44px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  z-index: 2;
+  overflow: hidden;
+  border-left: 3.5px solid transparent;
+  box-shadow: 0 1px 4px rgba(16,24,40,0.08);
+}
+.tevent.call { background: var(--ca-bg); border-left-color: var(--ca-bd); color: var(--ca-tx); }
+.tevent.email { background: var(--em-bg); border-left-color: var(--em-bd); color: var(--em-tx); }
+.tevent.meeting { background: var(--me-bg); border-left-color: var(--me-bd); color: var(--me-tx); }
+.tevent.task { background: var(--ta-bg); border-left-color: var(--ta-bd); color: var(--ta-tx); }
+
+.tevent .title-row { font-weight: 700; font-size: 11px; display: flex; align-items: center; gap: 5px; }
+.tevent .party { margin-top: 3px; font-weight: 500; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.activity-icon { font-size: 11px; line-height: 1; }
+
+.now { position: absolute; left: 70px; right: 0; height: 2px; background: #f04438; z-index: 5; }
+.now::before { content: ''; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: #f04438; box-shadow: 0 0 0 2px rgba(240,68,56,0.2); }
+
+/* Hovercard & Drawers */
+.hovercard { position: fixed; display: none; z-index: 100; background: #1e293b; color: #fff; border-radius: 8px; padding: 10px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); font-size: 11px; line-height: 1.55; white-space: nowrap; pointer-events: none; }
+.hovercard.show { display: block; }
+.hovercard b { display: block; font-size: 12px; margin-bottom: 3px; color: var(--cyan); }
+
+.drawerbg { display: none; position: fixed; inset: 0; background: rgba(16,24,40,0.4); z-index: 50; backdrop-filter: blur(1px); }
+.drawerbg.show { display: block; }
+.drawer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: min(470px, 100%);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -15px 0 40px rgba(16,24,40,0.18);
+  animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.dhead { height: 64px; border-bottom: 1px solid var(--bd); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; background: #fff; }
+.dhead h2 { font-size: 16px; font-weight: 700; margin: 0; color: #101828; }
+.close { border: 0; background: none; font-size: 24px; color: #667085; cursor: pointer; padding: 4px; border-radius: 4px; }
+.close:hover { background: #f2f4f7; color: #101828; }
+
+.dbody { padding: 20px; display: grid; gap: 16px; overflow: auto; }
+.field label { display: block; color: var(--mu); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px; }
+.field input, .field select {
+  width: 100%;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #101828;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: var(--b);
+  box-shadow: 0 0 0 3px rgba(30, 67, 129, 0.12);
+}
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dfoot { margin-top: auto; border-top: 1px solid var(--bd); padding: 14px 20px; display: flex; justify-content: flex-end; gap: 10px; background: #fafbfc; }
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC8AAAAuCAIAAAA3GddeAAAIIUlEQVR4nO2YWXBT1xnHz7lXy73SlazFWmzLtiRvCBsZx2YxdojNYkLCFtLS4A6kyXQyYci0SfvQmfaJTjJ0SKZJJ9AOfWna7AQI6xBCWOIEu17AYxYj27IVy5ZkSda+XG333j5QXHOtBYPb5iH/Nx193zm/851zz3e+AwvW7gPfGyH/b4D79ANNZnEexVkiwgvyRVKxAAAAAAMAdHpD075IIBz739HIxILHH9M1GIowlAn4Q3a7NxCMQAjFYkFrTYVUJo4m6e7btst9o1EyMa+e4by+KVme4KXtKxoqlOcv9F7rN+t1BatWLjZWF6uVUgYAu8N3Z2iis/vOmMXZtHLRU08uP9Npfu90XygSX2AalVzUUq+r18vtE85Ukn76qeW1NaUAwLTGNE33D4yePX8Nx7kKdf61UU9Hv8XtiywADYLAukVF6+u1VDBIEFhz4+KqSg2C5N7+DMMMmqxd3aZwhOTmSc51j16/Y8vukmPfQAhXLiltWVIwZbX9aGvTokoNhvFycsz4VhtK9boCk8n6/seXtqwok+cJLvaYaZrJ5JJjiup80Z7NtTbz5C/3bFlq1D84yoxwjFe3tHz/718YM1k3LdcaKwuzGGejMeiVr7/UerXr9t49mxX5efPlmC0+n7v35U3jY45d6xZrVBm7ykijUeXtXFvdcaW/fUeLpij/UVDuqlij2LRxmdlkefW5xnyJcB40KIpsaKy4dX1od/ua8rJssZ2Xqio1LauN33zV+/zm+nnQGHRKJY40LNUbqkoWCgUAACF8fFXNY3X6mNdXWap4IBoUQZboFShNtaw2LiDKjLZtaopHow2LCjkoe/Q0XziPi9ZXqphYPF8ufughg4mUNUx648kEzXAhJLioCucrcB4fRWRSorZGOzzhVcgIhzuYg8agUyQjpF6rxjBePJE8frLTbp8OhEiaYiACxCKBWimtrCiqXlxCCPG57k4yfn5iesAb9sSSMYqmGAYBgIciEh6nTSNr0yj4KFJarAxF4vI8PDdN67LycCSs06oAAFwORyYVHTp82mb3sMwwnG+s0bb/+IktTzfCexnC5AvvH7C4yCTLWAzAc2XqZYo8HooAAEpLstAM3LUa98pbZmYNmdZ32wpfdRYVyAACCwLa1dZqi/DffOXq1azCVombMYmS8p3eou8d08PDpXTvXbmxrGKbotwbGYxQ9YwMBkPA5zSrJzvICKZ87004IsUg0pi+SsoZOQ0PwoFohhffmCyGsNpQceP3Fv/7ti+Mnr/p84dnGEELzqGP/W0f6+s2FG5ZBgAAAGABEXFSF8WQY94kCabNayr9/w+I4nxBiep0yB01ZsXx41C6ViVjtSoXktb3bSosVBw+fcbn8rH9jscS5871l301t+/UOO4dDcFAeB4kmKJKi+9wBkz+iwnlNammBgD/jIhBgEhGf1Q+bhsB5Pl+IELFpAABCIda+oxXH+G8c+MQfYF8PUikq6AlIojG7mPh6yj87M2IofLGqU..." alt="Freightoscope"></div>
+    <div class="brand-name">FREIGHTOSCOPE</div>
+    <div class="brand-close">×</div>
+  </div>
+  <div class="quick">
+    <input placeholder="Quick Search"><select><option>SHPT #</option></select><button class="search-btn">⌕</button>
+  </div>
+  <nav class="nav">
+    <a class="nav-item" href="#"><span class="nav-icon">◉</span>Dashboard<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">◉</span>Admin<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▦</span>Masters<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">◈</span>Member - Member Data Share<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">⌁</span>Sales<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">♧</span>Leads</a>
+    <a class="nav-item" href="#"><span class="nav-icon">◎</span>Opportunities</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⌁</span>Activities</a>
+    <a class="nav-item" href="#"><span class="nav-icon">▣</span>Contacts</a>
+    <a class="nav-item active" href="#"><span class="nav-icon">▦</span>Calendar</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙</span>Settings</a>
+    <a class="nav-item" href="#"><span class="nav-icon">▰</span>Pricing<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">◉</span>Operations<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">▰</span>Report<span class="nav-arrow">⌄</span></a>
+  </nav>
+</aside>
+
+<div class="shell">
+  <header>
+    <div>
+      <h1>Calendar</h1>
+    </div>
+    <button class="btn primary" onclick="create()">+ Create Activity</button>
+  </header>
+
+  <section class="card">
+    <div class="toolbar">
+      <div class="left">
+        <button id="today" class="btn today" onclick="today()">Today</button>
+        <div class="nav-btns">
+          <button class="btn" onclick="move(-1)">‹</button>
+          <button class="btn" onclick="move(1)">›</button>
+        </div>
+      </div>
+      
+      <!-- Perfectly Centered Date Range Label -->
+      <div id="range" class="range"></div>
+      
+      <div class="right">
+        <div class="filter">
+          <button id="filterBtn" class="btn filter-btn" onclick="ownersMenu()">
+            <span>All Owners</span>
+            <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div id="owners" class="dropdown"></div>
+        </div>
+        <div class="views">
+          <button data-v="month" onclick="setView('month')">Month</button>
+          <button data-v="week" onclick="setView('week')">Week</button>
+          <button data-v="day" onclick="setView('day')">Day</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <div id="month">
+        <div class="weekhead">
+          <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div id="grid" class="monthgrid"></div>
+      </div>
+      <div id="time" class="time">
+        <div id="thead" class="thead"></div>
+        <div id="tbody" class="tbody"></div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+
+<div id="hovercard" class="hovercard"></div>
+<div id="drawerbg" class="drawerbg" onclick="closeDrawer(event)"><aside id="drawer" class="drawer"></aside></div>
+
+<script>
+const A = [
+  {id:1, type:"Call", title:"Customer follow-up", party:"Acme Logistics", owner:"Rahul", date:"2026-08-04", time:"10:00"},
+  {id:2, type:"Email", title:"Rate confirmation", party:"Global Cargo Ltd.", owner:"Anita", date:"2026-08-10", time:"11:30"},
+  {id:3, type:"Meeting", title:"Quarterly review", party:"BlueSky Exports", owner:"Rahul", date:"2026-08-12", time:"14:00"},
+  {id:4, type:"Task", title:"Update quotation", party:"NorthStar Freight", owner:"Me", date:"2026-08-17", time:"09:30"},
+  {id:5, type:"Meeting", title:"Data Update Discussion", party:"Orbit Logistics", owner:"Anita", date:"2026-08-21", time:"15:00"},
+  {id:6, type:"Meeting", title:"Meeting with Team", party:"Acme Logistics", owner:"Rahul", date:"2026-08-23", time:"11:00"},
+  {id:10, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", owner:"Me", date:"2026-08-25", time:"10:30"},
+  {id:11, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", owner:"Rahul", date:"2026-08-25", time:"14:00"},
+  {id:12, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", owner:"Anita", date:"2026-08-25", time:"16:15"},
+  {id:7, type:"Meeting", title:"Design System", party:"Freight Partner", owner:"Me", date:"2026-08-26", time:"13:00"},
+  {id:8, type:"Meeting", title:"Meeting with Team", party:"BlueSky Exports", owner:"Rahul", date:"2026-08-26", time:"15:00"},
+  {id:9, type:"Meeting", title:"UI/UX Team Review", party:"Global Cargo Ltd.", owner:"Anita", date:"2026-08-29", time:"11:00"}
+];
+
+const C = {Call:"call", Email:"email", Meeting:"meeting", Task:"task"};
+const ICON = {Call:'☎', Email:'✉', Meeting:'👥', Task:'✓'};
+
+let v = localStorage.getItem("fo-cal-view") || "month";
+let d = new Date(2026, 7, 25);
+let sel = new Set();
+
+const key = x => {
+  let y = x.getFullYear();
+  let m = pad(x.getMonth() + 1);
+  let da = pad(x.getDate());
+  return `${y}-${m}-${da}`;
+};
+const pad = x => String(x).padStart(2, "0");
+
+function week(x) {
+  let y = new Date(x);
+  let day = y.getDay();
+  let diff = y.getDate() - day + (day == 0 ? -6 : 1);
+  return new Date(y.setDate(diff));
+}
+
+function getWeekNumber(dt) {
+  let t = new Date(dt.valueOf());
+  let dayNr = (dt.getDay() + 6) % 7;
+  t.setDate(t.getDate() - dayNr + 3);
+  let firstThursday = t.valueOf();
+  t.setMonth(0, 1);
+  if (t.getDay() !== 4) {
+    t.setMonth(0, 1 + ((4 - t.getDay() + 7) % 7));
+  }
+  return 1 + Math.round((firstThursday - t) / 604800000);
+}
+
+function visible() {
+  return A.filter(x => !sel.size || sel.has(x.owner));
+}
+
+function setView(x) {
+  v = x;
+  localStorage.setItem("fo-cal-view", x);
+  render();
+}
+
+function today() {
+  d = new Date(2026, 7, 25);
+  render();
+}
+
+function move(n) {
+  if (v == "month") d.setMonth(d.getMonth() + n);
+  else d.setDate(d.getDate() + n * (v == "week" ? 7 : 1));
+  render();
+}
+
+function current() {
+  let n = new Date(2026, 7, 25);
+  if (v == "day") return key(d) == key(n);
+  if (v == "month") return d.getMonth() == n.getMonth() && d.getFullYear() == n.getFullYear();
+  return key(week(d)) == key(week(n));
+}
+
+function label() {
+  if (v == "month") return d.toLocaleDateString("en-US", {month: "long", year: "numeric"});
+  if (v == "day") return d.toLocaleDateString("en-US", {weekday: "long", month: "long", day: "numeric", year: "numeric"});
+  
+  let s = week(d);
+  let wn = getWeekNumber(s);
+  return `Week ${wn} (${d.toLocaleDateString("en-US", {month: "long", year: "numeric"})})`;
+}
+
+function render() {
+  document.getElementById("range").textContent = label();
+  document.getElementById("today").classList.toggle("off", current());
+  document.querySelectorAll(".views button").forEach(b => b.classList.toggle("active", b.dataset.v == v));
+  
+  if (v == "month") {
+    month();
+  } else {
+    time();
+  }
+  ownerList();
+}
+
+function endTime(t) {
+  let [h, m] = t.split(':').map(Number);
+  let total = h * 60 + m + 60;
+  total = Math.min(total, 23 * 60 + 59);
+  return pad(Math.floor(total / 60)) + ':' + pad(total % 60);
+}
+
+function prettyTime(t) {
+  let [h, m] = t.split(':').map(Number);
+  let ap = h >= 12 ? 'PM' : 'AM';
+  let hh = h % 12 || 12;
+  return `${hh}:${pad(m)} ${ap}`;
+}
+
+function hoverText(a) {
+  return `Activity: ${a.title}\nType: ${a.type}\nTime: ${prettyTime(a.time)} – ${prettyTime(endTime(a.time))}\nParty: ${a.party}\nOwner: ${a.owner}`;
+}
+
+function card(a) {
+  return `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" onclick="eventClick(event,${a.id})">
+    <span class="type-label">${a.type}:</span>
+    <span class="party-name">${a.party}</span>
+  </div>`;
+}
+
+function month() {
+  document.getElementById("month").style.display = "block";
+  document.getElementById("time").classList.remove("active");
+  
+  let y = d.getFullYear(), m = d.getMonth();
+  let firstDay = new Date(y, m, 1);
+  let startOffset = (firstDay.getDay() + 6) % 7;
+  let s = new Date(y, m, 1 - startOffset);
+  let o = "";
+
+  for (let i = 0; i < 42; i++) {
+    let x = new Date(s);
+    x.setDate(s.getDate() + i);
+    let ev = visible().filter(a => a.date == key(x));
+    let displayEvents = [];
+    let more = "";
+    
+    if (ev.length <= 3) {
+      displayEvents = ev;
+    } else {
+      displayEvents = ev.slice(0, 2);
+      more = `<div class="more" onclick="more(event,'${key(x)}')">+${ev.length - 2} more</div>`;
+    }
+    
+    o += `<div class="day ${x.getMonth() != m ? "muted" : ""}" onclick="dayClick(event,'${key(x)}')">
+      <div class="date"><span class="num ${key(x) == "2026-08-25" ? "todaynum" : ""}">${x.getDate()}</span></div>
+      ${displayEvents.map(card).join("")}
+      ${more}
+    </div>`;
+  }
+  document.getElementById("grid").innerHTML = o;
+}
+
+function dayClick(e, date) {
+  if (e.target.closest(".event, .more")) return;
+  create(date);
+}
+
+function eventClick(e, id) {
+  e.stopPropagation();
+  viewActivity(A.find(x => x.id == id));
+}
+
+function more(e, date) {
+  e.stopPropagation();
+  let list = visible().filter(a => a.date == date);
+  document.getElementById("drawer").innerHTML = `
+    <div class="dhead">
+      <h2>Activities — ${date}</h2>
+      <button class="close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="dbody">
+      ${list.map(a => `
+        <div class="event ${C[a.type]}" data-tip="${hoverText(a)}" style="cursor:pointer" onclick="viewActivity(A.find(x=>x.id==${a.id}))">
+          <span class="type-label">${a.type}:</span>
+          <span class="party-name">${a.party} — ${a.title}</span>
+        </div>
+      `).join("")}
+    </div>`;
+  show();
+}
+
+function time() {
+  document.getElementById("month").style.display = "none";
+  document.getElementById("time").classList.add("active");
+  
+  let s = v == "day" ? new Date(d) : week(d);
+  let days = v == "day" ? 1 : 7;
+  let head = document.getElementById("thead");
+  let body = document.getElementById("tbody");
+  
+  head.style.gridTemplateColumns = `70px repeat(${days}, 1fr)`;
+  body.style.gridTemplateColumns = `70px repeat(${days}, 1fr)`;
+  
+  head.innerHTML = "<div></div>" + Array.from({length: days}, (_, i) => {
+    let x = new Date(s);
+    x.setDate(s.getDate() + i);
+    return `<div>${x.toLocaleDateString("en-US", {weekday: "short"})}<br>${x.getDate()} ${x.toLocaleDateString("en-US", {month: "short"})}</div>`;
+  }).join("");
+
+  let o = '<div class="times">' + Array.from({length: 24}, (_, h) => `<div>${pad(h)}:00</div>`).join("") + "</div>";
+  
+  for (let i = 0; i < days; i++) {
+    let x = new Date(s);
+    x.setDate(s.getDate() + i);
+    let ev = visible().filter(a => a.date == key(x));
+    
+    o += `<div class="col" onclick="slot(event,'${key(x)}')">
+      ${Array.from({length: 24}, () => '<div class="hour"></div>').join("")}
+      ${ev.map(a => {
+        let z = a.time.split(":");
+        let top = (+z[0] * 50) + (+z[1] / 60 * 50);
+        return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px" onclick="eventClick(event,${a.id})">
+          <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
+          <div class="party">${a.party}</div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  }
+  
+  body.innerHTML = o;
+  
+  if (key(d) == "2026-08-25") {
+    body.insertAdjacentHTML("beforeend", '<div class="now" style="top:659px"></div>');
+  }
+
+  // Instant scroll calculation to place earliest activity right at the top
+  const scrollToActivity = () => {
+    if (!body) return;
+    let targetEvs = visible().filter(a => v == "day" ? a.date == key(d) : true);
+    if (targetEvs.length > 0) {
+      let earliestTop = Math.min(...targetEvs.map(a => {
+        let [h, m] = a.time.split(':').map(Number);
+        return (h * 50) + (m / 60 * 50);
+      }));
+      body.scrollTop = Math.max(0, earliestTop - 20);
+    } else {
+      body.scrollTop = 400; // Default ~8:00 AM
+    }
+  };
+
+  scrollToActivity();
+  requestAnimationFrame(scrollToActivity);
+  setTimeout(scrollToActivity, 50);
+}
+
+function slot(e, date) {
+  if (e.target.closest(".tevent")) return;
+  let r = e.currentTarget.getBoundingClientRect();
+  let y = e.clientY - r.top;
+  let h = Math.max(0, Math.min(23, Math.floor(y / 50)));
+  create(date, pad(h) + ":00");
+}
+
+function ownerList() {
+  let box = document.getElementById("owners");
+  box.innerHTML = [...new Set(A.map(a => a.owner))].sort().map(o => 
+    `<label class="owner"><input type="checkbox" ${sel.has(o) ? "checked" : ""} onchange="owner('${o}', this.checked)"> ${o}</label>`
+  ).join("") + '<div style="padding:8px;color:#1677c8;cursor:pointer;font-weight:600;font-size:11px" onclick="sel.clear();render()">Clear selection</div>';
+}
+
+function ownersMenu() {
+  let btn = document.getElementById("filterBtn");
+  let menu = document.getElementById("owners");
+  menu.classList.toggle("show");
+  btn.classList.toggle("open", menu.classList.contains("show"));
+}
+
+function owner(o, on) {
+  on ? sel.add(o) : sel.delete(o);
+  render();
+}
+
+function create(date = key(d), time = new Date(2026,7,25,13,18).toTimeString().slice(0, 5)) {
+  document.getElementById("drawer").innerHTML = `
+    <div class="dhead">
+      <h2>Create Activity</h2>
+      <button class="close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="dbody">
+      <div class="field">
+        <label>Activity Type</label>
+        <select id="t">
+          <option>Call</option>
+          <option>Email</option>
+          <option>Meeting</option>
+          <option>Task</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Title / Subject</label>
+        <input id="ti" placeholder="Enter activity title">
+      </div>
+      <div class="field">
+        <label>Party</label>
+        <input id="pa" placeholder="Associated Party">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Activity Date</label>
+          <input id="da" type="date" value="${date}">
+        </div>
+        <div class="field">
+          <label>Activity Time</label>
+          <input id="tm" type="time" value="${time}">
+        </div>
+      </div>
+      <div class="field">
+        <label>Activity Owner</label>
+        <input id="ow" value="Me">
+      </div>
+    </div>
+    <div class="dfoot">
+      <button class="btn" onclick="closeDrawer()">Cancel</button>
+      <button class="btn primary" onclick="save()">Create Activity</button>
+    </div>`;
+  show();
+}
+
+function save() {
+  let a = {
+    id: Date.now(),
+    type: t.value,
+    title: ti.value.trim(),
+    party: pa.value.trim() || "Unassigned Party",
+    owner: ow.value.trim() || "Me",
+    date: da.value,
+    time: tm.value
+  };
+  if (!a.title || !a.date) return alert("Enter title and date.");
+  A.push(a);
+  d = new Date(a.date + "T00:00:00");
+  closeDrawer();
+  render();
+}
+
+function viewActivity(a) {
+  document.getElementById("drawer").innerHTML = `
+    <div class="dhead">
+      <h2>View ${a.type} Log</h2>
+      <button class="close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="dbody">
+      <div class="event ${C[a.type]}">
+        <span class="type-label">${a.type}:</span>
+        <span class="party-name">${a.party}</span>
+      </div>
+      <div class="field">
+        <label>Title</label>
+        <div style="font-weight:600;font-size:14px;color:#101828">${a.title}</div>
+      </div>
+      <div class="field">
+        <label>Party</label>
+        <div style="color:#344054">${a.party}</div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Date</label>
+          <div style="color:#344054">${a.date}</div>
+        </div>
+        <div class="field">
+          <label>Time</label>
+          <div style="color:#344054">${prettyTime(a.time)}</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Owner</label>
+        <div style="color:#344054">${a.owner}</div>
+      </div>
+    </div>
+    <div class="dfoot">
+      <button class="btn" onclick="closeDrawer()">Cancel</button>
+      <button class="btn primary" onclick="editActivity(${a.id})">Edit</button>
+    </div>`;
+  show();
+}
+
+function editActivity(id) {
+  let a = A.find(x => x.id == id);
+  if (!a) return;
+  document.getElementById("drawer").innerHTML = `
+    <div class="dhead">
+      <h2>Edit ${a.type} Log</h2>
+      <button class="close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="dbody">
+      <div class="field">
+        <label>Activity Type</label>
+        <input value="${a.type}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed">
+      </div>
+      <div class="field">
+        <label>Title / Subject</label>
+        <input id="ti" value="${a.title}">
+      </div>
+      <div class="field">
+        <label>Party</label>
+        <input id="pa" value="${a.party}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed" title="Party is locked">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Activity Date</label>
+          <input id="da" type="date" value="${a.date}">
+        </div>
+        <div class="field">
+          <label>Activity Time</label>
+          <input id="tm" type="time" value="${a.time}">
+        </div>
+      </div>
+      <div class="field">
+        <label>Activity Owner</label>
+        <input id="ow" value="${a.owner}">
+      </div>
+    </div>
+    <div class="dfoot">
+      <button class="btn" onclick="closeDrawer()">Cancel</button>
+      <button class="btn primary" onclick="update(${a.id})">Save Changes</button>
+    </div>`;
+  show();
+}
+
+function update(id) {
+  let a = A.find(x => x.id == id);
+  if (a) {
+    let newTitle = document.getElementById("ti").value.trim();
+    let newDate = document.getElementById("da").value;
+    let newTime = document.getElementById("tm").value;
+    let newOwner = document.getElementById("ow").value.trim();
+    
+    if (!newTitle || !newDate) return alert("Title and date are required.");
+    a.title = newTitle;
+    a.date = newDate;
+    a.time = newTime;
+    a.owner = newOwner || "Me";
+  }
+  closeDrawer();
+  render();
+}
+
+function show() {
+  document.getElementById("drawerbg").classList.add("show");
+}
+
+function closeDrawer(e) {
+  if (e && e.target.id != "drawerbg") return;
+  document.getElementById("drawerbg").classList.remove("show");
+}
+
+document.addEventListener("click", e => {
+  if (!e.target.closest(".filter")) {
+    document.getElementById("owners").classList.remove("show");
+    let btn = document.getElementById("filterBtn");
+    if (btn) btn.classList.remove("open");
+  }
+});
+
+const hover = document.getElementById('hovercard');
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('.event, .tevent');
+  if (!el) return;
+  const id = Number(el.getAttribute('data-id')) || Number((el.getAttribute('onclick') || '').match(/,(\d+)\)/)?.[1]);
+  const a = A.find(x => x.id === id);
+  if (!a) return;
+  
+  hover.innerHTML = `<b>${a.title}</b><div>Type: ${a.type}</div><div>Time: ${prettyTime(a.time)} – ${prettyTime(endTime(a.time))}</div><div>Party: ${a.party}</div><div>Owner: ${a.owner}</div>`;
+  hover.classList.add('show');
+  const r = el.getBoundingClientRect();
+  hover.style.left = Math.min(r.left, innerWidth - hover.offsetWidth - 12) + 'px';
+  hover.style.top = Math.min(r.bottom + 8, innerHeight - hover.offsetHeight - 12) + 'px';
+});
+
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('.event, .tevent')) hover.classList.remove('show');
+});
+
+render();
+</script>
+</body>
+</html>
