@@ -296,10 +296,6 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 
 .tevent {
   position: absolute;
-  left: 4px;
-  right: 4px;
-  height: 36px;
-  max-height: 36px;
   padding: 4px 7px;
   border-radius: 6px;
   font-size: 10.5px;
@@ -307,6 +303,7 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   overflow: hidden;
   border-left: 3.5px solid transparent;
   box-shadow: 0 1px 3px rgba(16,24,40,0.06);
+  box-sizing: border-box;
 }
 .tevent.call { background: var(--ca-bg); border-left-color: var(--ca-bd); color: var(--ca-tx); }
 .tevent.email { background: var(--em-bg); border-left-color: var(--em-bd); color: var(--em-tx); }
@@ -542,14 +539,64 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 
 <script>
 const A = [
-  {id:1, type:"Email", title:"Rate Confirmation", party:"Global Cargo Ltd.", contact:"Robert Vance (Logistics Mgr)", duration:"15 mins", owner:"Anita", date:"2026-08-10", time:"11:00"},
-  {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30 mins", owner:"Me", date:"2026-08-25", time:"10:30"},
-  {id:8, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"30 mins", owner:"Anita", date:"2026-08-25", time:"10:30"},
-  {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1 hour", owner:"Rahul", date:"2026-08-25", time:"14:30"},
-  {id:6, type:"Email", title:"Send Quotation & Contract", party:"BlueSky Freight", contact:"David Miller (Operations Head)", duration:"15 mins", owner:"Anita", date:"2026-08-25", time:"16:00"},
-  {id:7, type:"Task", title:"Verify Shipping Documents", party:"Oceanic Trans", contact:"Lisa Ray (Customs Agent)", duration:"45 mins", owner:"Me", date:"2026-08-25", time:"17:15"},
-  {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova (Supply Chain Lead)", duration:"45 mins", owner:"Anita", date:"2026-08-27", time:"11:00"},
-  {id:5, type:"Meeting", title:"Quarterly Review", party:"BlueSky Exports", contact:"Michael Chang (Managing Director)", duration:"1.5 hours", owner:"Rahul", date:"2026-08-29", time:"15:00"}
+  // ----------------------------------------------------
+  // WEEK VIEW DEMO DATA (Mon Aug 24 - Sun Aug 30, 2026)
+  // ----------------------------------------------------
+
+  // Mon Aug 24: 2h long meeting (80px tall card) & 30m call
+  {id:30, type:"Meeting", title:"Executive Strategy Review", party:"Global Cargo Ltd.", contact:"Robert Vance", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-24", time:"09:00", opportunity:"Annual Air Charter", direction:"Outbound", purpose:"Strategy Review", outcome:"Connected", status:"Completed", priority:"High", notes:"2-Hour executive strategy review meeting with Global Cargo management."},
+  {id:31, type:"Call", title:"Weekly Freight Alignment", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-24", time:"11:30", opportunity:"Ocean Import Contract", status:"Completed"},
+
+  // Tue Aug 25 (Today): 
+  // 1) 09:00 AM 30m Call
+  // 2) 10:30 AM OVERLAPPING 2 CALLS (50%/50% side-by-side split!)
+  // 3) 14:30 PM 1.5h Meeting (60px card height)
+  // 4) 16:30 PM 15m Email
+  {id:32, type:"Call", title:"Morning Space Sync", party:"BlueStar Line", contact:"Elena Rostova", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"09:00", status:"Completed"},
+  {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"10:00", opportunity:"Ocean Import Contract", direction:"Outbound", purpose:"Rate Negotiation", outcome:"Connected", status:"In Progress", priority:"High", notes:"Discussed spot rates for Shanghai-LA route."},
+  {id:8, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"10:00", opportunity:"Annual Air Charter", direction:"Inbound", purpose:"Rate Sync", outcome:"Connected", status:"In Progress", priority:"Medium", notes:"Coordinating carrier space allocation."},
+
+  // 11:00 AM OVERLAPPING 5 ACTIVITIES (Tests Day View MAX=4 threshold -> 3 cards + +2 more pill!)
+  {id:60, type:"Call", title:"Rate Negotiation Call", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"In Progress"},
+  {id:61, type:"Call", title:"Carrier Capacity Sync", party:"Swift Logistics", contact:"Anita Roy", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"11:00", status:"In Progress"},
+  {id:62, type:"Meeting", title:"Contract Draft Review", party:"Pacific Trade", contact:"David Miller", duration:"45m", durationMin:45, owner:"Rahul", date:"2026-08-25", time:"11:00", status:"New"},
+  {id:63, type:"Task", title:"Documentation Check", party:"Vance Logistics", contact:"Lisa Ray", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"New"},
+  {id:64, type:"Email", title:"Send Tariff Update", party:"Oceanic Trans", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-25", time:"11:00", status:"Completed"},
+
+  {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-25", time:"14:30", opportunity:"Q3 Freight Deal", direction:"Outbound", purpose:"Contract Renewal", outcome:"Connected", status:"New", priority:"High", notes:"Strategic alignment meeting with Operations Head."},
+  {id:6, type:"Email", title:"Send Quotation & Contract", party:"BlueSky Freight", contact:"David Miller (Operations Head)", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-25", time:"16:30", opportunity:"Q3 Freight Deal", status:"Completed"},
+
+  // Wed Aug 26: OVERLAPPING 4 ACTIVITIES at 11:00 AM (Triggers OVERLAP_MAX_VISIBLE overflow -> 2 cards + +2 more pill!)
+  {id:40, type:"Meeting", title:"Q3 Freight Contract Review", party:"Horizon Logistics", contact:"Alex Wong", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-26", time:"11:00", status:"In Progress"},
+  {id:41, type:"Call", title:"Air Freight Booking Followup", party:"Vance Logistics", contact:"Robert Vance", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-26", time:"11:00", status:"In Progress"},
+  {id:42, type:"Email", title:"Send Revised Tariff Sheet", party:"Oceanic Trans", contact:"Lisa Ray", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-26", time:"11:00", status:"Completed"},
+  {id:43, type:"Task", title:"Verify Customs Import Bond", party:"Swift Freight", contact:"David Miller", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-26", time:"11:00", status:"New"},
+
+  // Thu Aug 27: 1h Task & 2h Operations Audit Meeting
+  {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova (Supply Chain Lead)", duration:"1h", durationMin:60, owner:"Anita", date:"2026-08-27", time:"10:00", status:"Completed"},
+  {id:50, type:"Meeting", title:"Logistics Operations Audit", party:"Apex Shipping", contact:"Carlos Mendez", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-27", time:"14:00", status:"In Progress"},
+
+  // Fri Aug 28: 1h Huddle & 30m Feedback Call
+  {id:51, type:"Meeting", title:"Weekly Sales Team Huddle", party:"Internal Sales", contact:"Sales Team", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-28", time:"09:30", status:"Completed"},
+  {id:52, type:"Call", title:"Client Feedback & NPS Call", party:"Pacific Exports", contact:"Michael Chang", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-28", time:"15:00", status:"New"},
+
+  // Sat Aug 29: Weekend Meeting
+  {id:5, type:"Meeting", title:"Quarterly Business Review", party:"BlueSky Exports", contact:"Michael Chang (Managing Director)", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-29", time:"15:00", status:"New"},
+
+  // ----------------------------------------------------
+  // OTHER MONTH OVERFLOW TEST DATES
+  // ----------------------------------------------------
+  // 2026-08-12: 3 activities (Tests MAX=2 threshold -> 1 card + +2 more)
+  {id:10, type:"Call", title:"Initial Inquiry Followup", party:"Vance Logistics", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-12", time:"09:30", status:"In Progress"},
+  {id:11, type:"Email", title:"Quote Submission", party:"Vance Logistics", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Me", date:"2026-08-12", time:"11:00", status:"Completed"},
+  {id:12, type:"Task", title:"Check Customs Clearance", party:"Vance Logistics", contact:"Lisa Ray", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-12", time:"14:00", status:"New"},
+
+  // 2026-08-18: 5 activities (Tests MAX=4 threshold -> 3 cards + +2 more)
+  {id:20, type:"Call", title:"Client Touchpoint", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"09:00", status:"Completed"},
+  {id:21, type:"Meeting", title:"Quarterly Contract Review", party:"Apex Shipping", contact:"Carlos Mendez", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-18", time:"10:30", status:"Completed"},
+  {id:22, type:"Email", title:"Send Revision 2 Quote", party:"Apex Shipping", contact:"Carlos Mendez", duration:"15m", durationMin:15, owner:"Rahul", date:"2026-08-18", time:"13:00", status:"Completed"},
+  {id:23, type:"Task", title:"Update CRM Records", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"15:00", status:"Completed"},
+  {id:24, type:"Call", title:"Closing Confirmation Call", party:"Apex Shipping", contact:"Carlos Mendez", duration:"20m", durationMin:20, owner:"Rahul", date:"2026-08-18", time:"16:30", status:"Completed"}
 ];
 
 const C = {Call:"call", Email:"email", Meeting:"meeting", Task:"task"};
@@ -661,6 +708,8 @@ function card(a) {
   </div>`;
 }
 
+let MONTH_MAX_VISIBLE = 3; // Dynamic cell capacity threshold (supports 2, 3, or 4)
+
 function month() {
   document.getElementById("month").style.display = "block";
   document.getElementById("time").classList.remove("active");
@@ -678,11 +727,13 @@ function month() {
     let displayEvents = [];
     let more = "";
     
-    if (ev.length <= 3) {
+    if (ev.length <= MONTH_MAX_VISIBLE) {
       displayEvents = ev;
     } else {
-      displayEvents = ev.slice(0, 2);
-      more = `<div class="more" onclick="more(event,'${key(x)}')">+${ev.length - 2} more</div>`;
+      let visibleCount = MONTH_MAX_VISIBLE - 1;
+      displayEvents = ev.slice(0, visibleCount);
+      let overflowCount = ev.length - visibleCount;
+      more = `<div class="more" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
     }
     
     o += `<div class="day ${x.getMonth() != m ? "muted" : ""}" onclick="dayClick(event,'${key(x)}')">
@@ -770,23 +821,49 @@ function time() {
       groups[top].push(a);
     });
 
+    let OVERLAP_MAX_VISIBLE = (v == "day") ? 4 : 2;
+    let overflowRendered = {};
+
     let evHtml = ev.map(a => {
       let z = a.time.split(":");
       let top = (+z[0] * 40) + (+z[1] / 60 * 40);
       let sameSlot = groups[top] || [a];
-      let index = sameSlot.indexOf(a);
       let count = sameSlot.length;
-      
-      let widthPct = count > 1 ? (100 / count) - 2 : 96;
-      let leftPct = count > 1 ? (index * (100 / count)) + 1 : 2;
+      let index = sameSlot.indexOf(a);
 
       let mins = a.durationMin || (a.duration ? (a.duration.includes('hour') ? parseFloat(a.duration)*60 : parseInt(a.duration)) : 30);
       let cardHeight = Math.max(36, Math.round((mins / 60) * 40));
 
-      return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${widthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;" onclick="eventClick(event,${a.id})">
-        <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
-        <div class="party">${a.party}</div>
-      </div>`;
+      if (count <= OVERLAP_MAX_VISIBLE) {
+        let colWidthPct = (100 / count);
+        let cardWidthPct = colWidthPct - 2;
+        let leftPct = (index * colWidthPct) + 1;
+        return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;" onclick="eventClick(event,${a.id})">
+          <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
+          <div class="party">${a.party}</div>
+        </div>`;
+      } else {
+        // Overlapping Overflow (> 2 events in Week View or > 4 in Day View)
+        let visibleCardsCount = OVERLAP_MAX_VISIBLE - 1; // 1 card in Week, 3 cards in Day
+        let colWidthPct = (100 / OVERLAP_MAX_VISIBLE);
+        let cardWidthPct = colWidthPct - 2;
+
+        if (index < visibleCardsCount) {
+          let leftPct = (index * colWidthPct) + 1;
+          return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;" onclick="eventClick(event,${a.id})">
+            <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
+            <div class="party">${a.party}</div>
+          </div>`;
+        } else {
+          if (!overflowRendered[top]) {
+            overflowRendered[top] = true;
+            let overflowCount = count - visibleCardsCount;
+            let leftPct = (visibleCardsCount * colWidthPct) + 1;
+            return `<div class="more tevent-more" style="position:absolute;top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:36px;background:#fce7f3;color:#831843;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;box-shadow:0 1px 3px rgba(0,0,0,0.1);" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
+          }
+          return "";
+        }
+      }
     }).join("");
 
     o += `<div class="col" onclick="slot(event,'${key(x)}')">
@@ -1037,43 +1114,86 @@ function save() {
 function viewActivity(a) {
   document.getElementById("drawer").innerHTML = `
     <div class="dhead">
-      <h2>View ${a.type} Log</h2>
+      <h2>View ${a.type} Details</h2>
       <button class="close" onclick="closeDrawer()">×</button>
     </div>
     <div class="dbody">
-      <div class="event ${C[a.type]}">
-        <span class="type-label">${a.type}:</span>
-        <span class="party-name">${a.party}</span>
+      <div class="field">
+        <label>Activity Type</label>
+        <div style="font-weight:700;font-size:13px;color:#101828">${ICON[a.type]} ${a.type}</div>
       </div>
       <div class="field">
         <label>Title</label>
-        <div style="font-weight:600;font-size:14px;color:#101828">${a.title}</div>
+        <div style="font-weight:700;font-size:14px;color:#101828">${a.title}</div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Party</label>
+          <div style="color:#344054;font-weight:600">${a.party}</div>
+        </div>
+        <div class="field">
+          <label>Opportunity</label>
+          <div style="color:#344054">${a.opportunity || 'Q3 Freight Deal'}</div>
+        </div>
       </div>
       <div class="field">
-        <label>Party</label>
-        <div style="color:#344054">${a.party}</div>
-      </div>
-      <div class="field">
-        <label>Associated Contact</label>
+        <label>Contacts</label>
         <div style="color:#344054">${a.contact || 'N/A'}</div>
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Date</label>
-          <div style="color:#344054">${a.date}</div>
+          <label>Date and Time</label>
+          <div style="color:#344054">${a.date} at ${prettyTime(a.time)}</div>
         </div>
         <div class="field">
           <label>Duration</label>
-          <div style="color:#344054">${a.duration || '30 mins'}</div>
+          <div style="color:#344054">${a.duration || '30m'}</div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Direction</label>
+          <div style="color:#344054">${a.direction || 'Outbound'}</div>
+        </div>
+        <div class="field">
+          <label>Purpose</label>
+          <div style="color:#344054">${a.purpose || 'Sales Follow-up'}</div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Outcome</label>
+          <div style="color:#344054">${a.outcome || 'Connected'}</div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <div style="color:#344054"><span style="background:#ecfdf5;color:#047857;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">${a.status || 'New'}</span></div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Priority</label>
+          <div style="color:#344054">${a.priority || 'Medium'}</div>
+        </div>
+        <div class="field">
+          <label>Owner</label>
+          <div style="color:#344054">${a.owner}</div>
         </div>
       </div>
       <div class="field">
-        <label>Owner</label>
-        <div style="color:#344054">${a.owner}</div>
+        <label>Other Team Members</label>
+        <div class="tag-box" style="border:0;padding:0;min-height:auto">
+          <span class="tag-pill">Collins Carter</span>
+          <span class="tag-pill">Adams Miller</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <div style="color:#475467;font-size:12px;background:#f8fafc;padding:8px 12px;border-radius:6px;border:1px solid #eaecf0">${a.notes || 'No additional notes.'}</div>
       </div>
     </div>
     <div class="dfoot">
-      <button class="btn" onclick="closeDrawer()">Cancel</button>
+      <button class="btn" onclick="closeDrawer()">Close</button>
       <button class="btn primary" onclick="editActivity(${a.id})">Edit</button>
     </div>`;
   show();
@@ -1082,9 +1202,14 @@ function viewActivity(a) {
 function editActivity(id) {
   let a = A.find(x => x.id == id);
   if (!a) return;
+  selectedType = a.type;
+  let hh = Math.floor((a.durationMin || 30) / 60);
+  let mm = (a.durationMin || 30) % 60;
+  let dtmVal = `${a.date}T${a.time.length == 5 ? a.time : '09:00'}`;
+
   document.getElementById("drawer").innerHTML = `
     <div class="dhead">
-      <h2>Edit ${a.type} Log</h2>
+      <h2>Edit Activity</h2>
       <button class="close" onclick="closeDrawer()">×</button>
     </div>
     <div class="dbody">
@@ -1093,43 +1218,99 @@ function editActivity(id) {
         <input value="${a.type}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed">
       </div>
       <div class="field">
-        <label>Title / Subject</label>
+        <label>Title <span style="color:#f04438">*</span></label>
         <input id="ti" value="${a.title}">
-      </div>
-      <div class="field">
-        <label>Party</label>
-        <input id="pa" value="${a.party}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed" title="Party is locked">
-      </div>
-      <div class="field">
-        <label>Associated Contact</label>
-        <input id="co" value="${a.contact || ''}" placeholder="e.g. Sarah Jenkins (VP Sales)">
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Activity Date</label>
-          <input id="da" type="date" value="${a.date}">
+          <label>Party</label>
+          <input id="pa" value="${a.party}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed" title="Party is locked">
+        </div>
+        <div class="field">
+          <label>Opportunity</label>
+          <select id="op">
+            <option value="Q3 Freight Deal" selected>Q3 Freight Deal</option>
+            <option value="Annual Air Charter">Annual Air Charter</option>
+            <option value="Ocean Import Contract">Ocean Import Contract</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Contacts</label>
+        <input id="co" value="${a.contact || ''}">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Date and Time <span style="color:#f04438">*</span></label>
+          <input id="dtm" type="datetime-local" value="${dtmVal}">
         </div>
         <div class="field">
           <label>Duration</label>
-          <select id="du">
-            <option value="15 mins" ${a.duration == '15 mins' ? 'selected' : ''}>15 mins</option>
-            <option value="30 mins" ${a.duration == '30 mins' || !a.duration ? 'selected' : ''}>30 mins</option>
-            <option value="45 mins" ${a.duration == '45 mins' ? 'selected' : ''}>45 mins</option>
-            <option value="1 hour" ${a.duration == '1 hour' ? 'selected' : ''}>1 hour</option>
-            <option value="1.5 hours" ${a.duration == '1.5 hours' ? 'selected' : ''}>1.5 hours</option>
-            <option value="2 hours" ${a.duration == '2 hours' ? 'selected' : ''}>2 hours</option>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input id="durH" type="number" min="0" max="23" value="${hh}" style="width:65px;text-align:center"> <span style="font-size:12px;color:#667085;font-weight:600">h</span>
+            <input id="durM" type="number" min="0" max="59" value="${mm}" style="width:65px;text-align:center"> <span style="font-size:12px;color:#667085;font-weight:600">m</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Direction</label>
+          <select id="dir">
+            <option value="Outbound" selected>Outbound</option>
+            <option value="Inbound">Inbound</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Purpose</label>
+          <select id="pur">
+            <option value="Sales Follow-up" selected>Sales Follow-up</option>
+            <option value="Contract Renewal">Contract Renewal</option>
+            <option value="Rate Negotiation">Rate Negotiation</option>
           </select>
         </div>
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Activity Time</label>
-          <input id="tm" type="time" value="${a.time}">
+          <label>Outcome</label>
+          <select id="outc">
+            <option value="Connected" selected>Connected</option>
+            <option value="Left Voicemail">Left Voicemail</option>
+            <option value="Busy">Busy</option>
+          </select>
         </div>
         <div class="field">
-          <label>Activity Owner</label>
+          <label>Status <span style="color:#f04438">*</span></label>
+          <select id="st">
+            <option value="New">New</option>
+            <option value="In Progress" selected>In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Priority</label>
+          <select id="pri">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Owner</label>
           <input id="ow" value="${a.owner}">
         </div>
+      </div>
+      <div class="field">
+        <label>Other Team Members</label>
+        <div class="tag-box">
+          <span class="tag-pill">Collins Carter <span class="remove" onclick="this.parentElement.remove()">×</span></span>
+          <span class="tag-pill">Adams Miller <span class="remove" onclick="this.parentElement.remove()">×</span></span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="notes">${a.notes || ''}</textarea>
       </div>
     </div>
     <div class="dfoot">
@@ -1142,20 +1323,25 @@ function editActivity(id) {
 function update(id) {
   let a = A.find(x => x.id == id);
   if (a) {
-    let newTitle = document.getElementById("ti").value.trim();
-    let newContact = document.getElementById("co").value.trim();
-    let newDuration = document.getElementById("du").value;
-    let newDate = document.getElementById("da").value;
-    let newTime = document.getElementById("tm").value;
-    let newOwner = document.getElementById("ow").value.trim();
+    let titleVal = document.getElementById("ti").value.trim();
+    let dtmVal = document.getElementById("dtm").value;
+    if (!titleVal || !dtmVal) return alert("Title and Date/Time are required.");
     
-    if (!newTitle || !newDate) return alert("Title and date are required.");
-    a.title = newTitle;
-    a.contact = newContact || "N/A";
-    a.duration = newDuration || "30 mins";
-    a.date = newDate;
-    a.time = newTime;
-    a.owner = newOwner || "Me";
+    let contactVal = document.getElementById("co").value.trim();
+    let hh = parseInt(document.getElementById("durH").value) || 0;
+    let mm = parseInt(document.getElementById("durM").value) || 0;
+    let totalMins = (hh * 60) + mm || 30;
+    let durText = hh > 0 ? `${hh}h ${mm > 0 ? mm + 'm' : ''}` : `${mm || 30}m`;
+    let [dVal, tVal] = dtmVal.split("T");
+
+    a.title = titleVal;
+    a.contact = contactVal || "N/A";
+    a.duration = durText;
+    a.durationMin = totalMins;
+    a.date = dVal;
+    a.time = tVal ? tVal.slice(0, 5) : "09:00";
+    a.owner = document.getElementById("ow").value.trim() || "Me";
+    a.notes = document.getElementById("notes").value.trim();
   }
   closeDrawer();
   render();
