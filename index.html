@@ -475,11 +475,11 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 
 <script>
 const A = [
-  {id:1, type:"Email", title:"Rate Confirmation", party:"Global Cargo Ltd.", owner:"Anita", date:"2026-08-10", time:"11:00"},
-  {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", owner:"Me", date:"2026-08-25", time:"10:30"},
-  {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", owner:"Rahul", date:"2026-08-25", time:"14:30"},
-  {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", owner:"Anita", date:"2026-08-27", time:"11:00"},
-  {id:5, type:"Meeting", title:"Quarterly Review", party:"BlueSky Exports", owner:"Rahul", date:"2026-08-29", time:"15:00"}
+  {id:1, type:"Email", title:"Rate Confirmation", party:"Global Cargo Ltd.", contact:"Robert Vance (Logistics Mgr)", duration:"15 mins", owner:"Anita", date:"2026-08-10", time:"11:00"},
+  {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30 mins", owner:"Me", date:"2026-08-25", time:"10:30"},
+  {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1 hour", owner:"Rahul", date:"2026-08-25", time:"14:30"},
+  {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova (Supply Chain Lead)", duration:"45 mins", owner:"Anita", date:"2026-08-27", time:"11:00"},
+  {id:5, type:"Meeting", title:"Quarterly Review", party:"BlueSky Exports", contact:"Michael Chang (Managing Director)", duration:"1.5 hours", owner:"Rahul", date:"2026-08-29", time:"15:00"}
 ];
 
 const C = {Call:"call", Email:"email", Meeting:"meeting", Task:"task"};
@@ -581,7 +581,7 @@ function prettyTime(t) {
 }
 
 function hoverText(a) {
-  return `Activity: ${a.title}\nType: ${a.type}\nTime: ${prettyTime(a.time)} – ${prettyTime(endTime(a.time))}\nParty: ${a.party}\nOwner: ${a.owner}`;
+  return `Activity: ${a.title}\nType: ${a.type}\nDuration: ${a.duration || '30 mins'}\nParty: ${a.party}\nContact: ${a.contact || 'N/A'}\nOwner: ${a.owner}`;
 }
 
 function card(a) {
@@ -768,19 +768,36 @@ function create(date = key(d), time = new Date(2026,7,25,13,18).toTimeString().s
         <label>Party</label>
         <input id="pa" placeholder="Associated Party">
       </div>
+      <div class="field">
+        <label>Associated Contact</label>
+        <input id="co" placeholder="e.g. Sarah Jenkins (VP Sales)">
+      </div>
       <div class="grid2">
         <div class="field">
           <label>Activity Date</label>
           <input id="da" type="date" value="${date}">
         </div>
         <div class="field">
+          <label>Duration</label>
+          <select id="du">
+            <option value="15 mins">15 mins</option>
+            <option value="30 mins" selected>30 mins</option>
+            <option value="45 mins">45 mins</option>
+            <option value="1 hour">1 hour</option>
+            <option value="1.5 hours">1.5 hours</option>
+            <option value="2 hours">2 hours</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
           <label>Activity Time</label>
           <input id="tm" type="time" value="${time}">
         </div>
-      </div>
-      <div class="field">
-        <label>Activity Owner</label>
-        <input id="ow" value="Me">
+        <div class="field">
+          <label>Activity Owner</label>
+          <input id="ow" value="Me">
+        </div>
       </div>
     </div>
     <div class="dfoot">
@@ -796,6 +813,8 @@ function save() {
     type: t.value,
     title: ti.value.trim(),
     party: pa.value.trim() || "Unassigned Party",
+    contact: co.value.trim() || "N/A",
+    duration: du ? du.value : "30 mins",
     owner: ow.value.trim() || "Me",
     date: da.value,
     time: tm.value
@@ -826,14 +845,18 @@ function viewActivity(a) {
         <label>Party</label>
         <div style="color:#344054">${a.party}</div>
       </div>
+      <div class="field">
+        <label>Associated Contact</label>
+        <div style="color:#344054">${a.contact || 'N/A'}</div>
+      </div>
       <div class="grid2">
         <div class="field">
           <label>Date</label>
           <div style="color:#344054">${a.date}</div>
         </div>
         <div class="field">
-          <label>Time</label>
-          <div style="color:#344054">${prettyTime(a.time)}</div>
+          <label>Duration</label>
+          <div style="color:#344054">${a.duration || '30 mins'}</div>
         </div>
       </div>
       <div class="field">
@@ -869,19 +892,36 @@ function editActivity(id) {
         <label>Party</label>
         <input id="pa" value="${a.party}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed" title="Party is locked">
       </div>
+      <div class="field">
+        <label>Associated Contact</label>
+        <input id="co" value="${a.contact || ''}" placeholder="e.g. Sarah Jenkins (VP Sales)">
+      </div>
       <div class="grid2">
         <div class="field">
           <label>Activity Date</label>
           <input id="da" type="date" value="${a.date}">
         </div>
         <div class="field">
+          <label>Duration</label>
+          <select id="du">
+            <option value="15 mins" ${a.duration == '15 mins' ? 'selected' : ''}>15 mins</option>
+            <option value="30 mins" ${a.duration == '30 mins' || !a.duration ? 'selected' : ''}>30 mins</option>
+            <option value="45 mins" ${a.duration == '45 mins' ? 'selected' : ''}>45 mins</option>
+            <option value="1 hour" ${a.duration == '1 hour' ? 'selected' : ''}>1 hour</option>
+            <option value="1.5 hours" ${a.duration == '1.5 hours' ? 'selected' : ''}>1.5 hours</option>
+            <option value="2 hours" ${a.duration == '2 hours' ? 'selected' : ''}>2 hours</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
           <label>Activity Time</label>
           <input id="tm" type="time" value="${a.time}">
         </div>
-      </div>
-      <div class="field">
-        <label>Activity Owner</label>
-        <input id="ow" value="${a.owner}">
+        <div class="field">
+          <label>Activity Owner</label>
+          <input id="ow" value="${a.owner}">
+        </div>
       </div>
     </div>
     <div class="dfoot">
@@ -895,12 +935,16 @@ function update(id) {
   let a = A.find(x => x.id == id);
   if (a) {
     let newTitle = document.getElementById("ti").value.trim();
+    let newContact = document.getElementById("co").value.trim();
+    let newDuration = document.getElementById("du").value;
     let newDate = document.getElementById("da").value;
     let newTime = document.getElementById("tm").value;
     let newOwner = document.getElementById("ow").value.trim();
     
     if (!newTitle || !newDate) return alert("Title and date are required.");
     a.title = newTitle;
+    a.contact = newContact || "N/A";
+    a.duration = newDuration || "30 mins";
     a.date = newDate;
     a.time = newTime;
     a.owner = newOwner || "Me";
@@ -953,7 +997,7 @@ document.addEventListener('mouseover', e => {
   const a = A.find(x => x.id === id);
   if (!a) return;
   
-  hover.innerHTML = `<b>${a.title}</b><div>Type: ${a.type}</div><div>Time: ${prettyTime(a.time)} – ${prettyTime(endTime(a.time))}</div><div>Party: ${a.party}</div><div>Owner: ${a.owner}</div>`;
+  hover.innerHTML = `<b>${a.title}</b><div>Type: ${a.type}</div><div>Duration: ${a.duration || '30 mins'}</div><div>Party: ${a.party}</div><div>Contact: ${a.contact || 'N/A'}</div><div>Owner: ${a.owner}</div>`;
   hover.classList.add('show');
   const r = el.getBoundingClientRect();
   hover.style.left = Math.min(r.left, innerWidth - hover.offsetWidth - 12) + 'px';
