@@ -225,8 +225,21 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 .meeting { background: var(--me-bg); border-left-color: var(--me-bd); color: var(--me-tx); }
 .task { background: var(--ta-bg); border-left-color: var(--ta-bd); color: var(--ta-tx); }
 
-.more { height: 22px; padding: 3px 7px; color: var(--b); font-weight: 700; cursor: pointer; font-size: 10.5px; border-radius: 4px; display: flex; align-items: center; background: #f0f7ff; }
-.more:hover { background: #e0f0ff; }
+.more {
+  height: 22px;
+  padding: 3px 8px;
+  color: #831843;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 10.5px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  background: #fce7f3;
+  margin-top: 3px;
+  transition: background 0.12s ease;
+}
+.more:hover { background: #fbcfe8; }
 
 /* Week & Day Time Grid Header Alignment */
 .time { display: none; min-width: 900px; }
@@ -350,7 +363,7 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   right: 0;
   top: 0;
   height: 100%;
-  width: min(470px, 100%);
+  width: min(560px, 100%);
   background: #fff;
   display: flex;
   flex-direction: column;
@@ -368,23 +381,77 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 .close { border: 0; background: none; font-size: 24px; color: #667085; cursor: pointer; padding: 4px; border-radius: 4px; }
 .close:hover { background: #f2f4f7; color: #101828; }
 
-.dbody { padding: 20px; display: grid; gap: 16px; overflow: auto; }
+.dbody { padding: 20px; display: grid; gap: 14px; overflow: auto; }
 .field label { display: block; color: var(--mu); font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.3px; }
-.field input, .field select {
+.field input, .field select, .field textarea {
   width: 100%;
   border: 1px solid var(--bd);
   border-radius: 8px;
   padding: 9px 12px;
   color: #101828;
   background: #fff;
+  font-family: inherit;
+  font-size: 12px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.field input:focus, .field select:focus {
+.field input:focus, .field select:focus, .field textarea:focus {
   outline: none;
   border-color: var(--b);
   box-shadow: 0 0 0 3px rgba(30, 67, 129, 0.12);
 }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.type-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.type-btn {
+  padding: 8px 10px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475467;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+.type-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+.type-btn.active {
+  border-color: var(--b);
+  background: #f0f7ff;
+  color: var(--b);
+  box-shadow: 0 0 0 1px var(--b);
+}
+.tag-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: #fff;
+  min-height: 40px;
+  align-items: center;
+}
+.tag-pill {
+  background: #eaecf0;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.tag-pill span.remove {
+  cursor: pointer;
+  font-size: 13px;
+  color: #667085;
+  font-weight: 700;
+}
+.tag-pill span.remove:hover { color: #f04438; }
 .dfoot { margin-top: auto; border-top: 1px solid var(--bd); padding: 14px 20px; display: flex; justify-content: flex-end; gap: 10px; background: #fafbfc; }
 </style>
 </head>
@@ -477,7 +544,10 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 const A = [
   {id:1, type:"Email", title:"Rate Confirmation", party:"Global Cargo Ltd.", contact:"Robert Vance (Logistics Mgr)", duration:"15 mins", owner:"Anita", date:"2026-08-10", time:"11:00"},
   {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30 mins", owner:"Me", date:"2026-08-25", time:"10:30"},
+  {id:8, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"30 mins", owner:"Anita", date:"2026-08-25", time:"10:30"},
   {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1 hour", owner:"Rahul", date:"2026-08-25", time:"14:30"},
+  {id:6, type:"Email", title:"Send Quotation & Contract", party:"BlueSky Freight", contact:"David Miller (Operations Head)", duration:"15 mins", owner:"Anita", date:"2026-08-25", time:"16:00"},
+  {id:7, type:"Task", title:"Verify Shipping Documents", party:"Oceanic Trans", contact:"Lisa Ray (Customs Agent)", duration:"45 mins", owner:"Me", date:"2026-08-25", time:"17:15"},
   {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova (Supply Chain Lead)", duration:"45 mins", owner:"Anita", date:"2026-08-27", time:"11:00"},
   {id:5, type:"Meeting", title:"Quarterly Review", party:"BlueSky Exports", contact:"Michael Chang (Managing Director)", duration:"1.5 hours", owner:"Rahul", date:"2026-08-29", time:"15:00"}
 ];
@@ -581,7 +651,7 @@ function prettyTime(t) {
 }
 
 function hoverText(a) {
-  return `Activity: ${a.title}\nType: ${a.type}\nDuration: ${a.duration || '30 mins'}\nParty: ${a.party}\nContact: ${a.contact || 'N/A'}\nOwner: ${a.owner}`;
+  return `Activity: ${a.title}\nDuration: ${a.duration || '30 mins'}\nParty: ${a.party}\nContact: ${a.contact || 'N/A'}\nOwner: ${a.owner}`;
 }
 
 function card(a) {
@@ -637,16 +707,29 @@ function eventClick(e, id) {
 function more(e, date) {
   e.stopPropagation();
   let list = visible().filter(a => a.date == date);
+  let formattedDate = new Date(date + "T00:00:00").toLocaleDateString("en-US", {weekday: "long", month: "short", day: "numeric", year: "numeric"});
+  
   document.getElementById("drawer").innerHTML = `
     <div class="dhead">
-      <h2>Activities — ${date}</h2>
+      <div>
+        <h2 style="margin:0">Activities on ${formattedDate}</h2>
+        <div style="font-size:12px;color:#667085;margin-top:2px">${list.length} total activities scheduled</div>
+      </div>
       <button class="close" onclick="closeDrawer()">×</button>
     </div>
-    <div class="dbody">
+    <div class="dbody" style="display:flex;flex-direction:column;gap:10px">
       ${list.map(a => `
-        <div class="event ${C[a.type]}" data-tip="${hoverText(a)}" style="cursor:pointer" onclick="viewActivity(A.find(x=>x.id==${a.id}))">
-          <span class="type-label">${a.type}:</span>
-          <span class="party-name">${a.party} — ${a.title}</span>
+        <div class="card-item" onclick="viewActivity(A.find(x=>x.id==${a.id}))" style="background:#fff;border:1px solid #eaecf0;border-radius:8px;padding:12px;cursor:pointer;transition:border-color 0.15s ease,box-shadow 0.15s ease;" onmouseover="this.style.borderColor='#93c5fd';this.style.boxShadow='0 2px 6px rgba(0,0,0,0.06)'" onmouseout="this.style.borderColor='#eaecf0';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span class="event ${C[a.type]}" style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:0">
+              <span style="margin-right:4px">${ICON[a.type]}</span> ${a.type}
+            </span>
+            <span style="font-size:11px;color:#667085;font-weight:500">⏱️ ${a.duration || '30 mins'}</span>
+          </div>
+          <div style="font-weight:700;font-size:13px;color:#101828;margin-bottom:4px">${a.title}</div>
+          <div style="font-size:12px;color:#344054;margin-bottom:2px">🏢 <b>Party:</b> ${a.party}</div>
+          <div style="font-size:11.5px;color:#475467;margin-bottom:2px">👤 <b>Contact:</b> ${a.contact || 'N/A'}</div>
+          <div style="font-size:11px;color:#667085">👤 <b>Owner:</b> ${a.owner}</div>
         </div>
       `).join("")}
     </div>`;
@@ -679,16 +762,36 @@ function time() {
     let ev = visible().filter(a => a.date == key(x));
     let nowLine = (key(x) == "2026-08-25") ? '<div class="now" style="top:532px"></div>' : '';
     
+    let groups = {};
+    ev.forEach(a => {
+      let z = a.time.split(":");
+      let top = (+z[0] * 40) + (+z[1] / 60 * 40);
+      groups[top] = groups[top] || [];
+      groups[top].push(a);
+    });
+
+    let evHtml = ev.map(a => {
+      let z = a.time.split(":");
+      let top = (+z[0] * 40) + (+z[1] / 60 * 40);
+      let sameSlot = groups[top] || [a];
+      let index = sameSlot.indexOf(a);
+      let count = sameSlot.length;
+      
+      let widthPct = count > 1 ? (100 / count) - 2 : 96;
+      let leftPct = count > 1 ? (index * (100 / count)) + 1 : 2;
+
+      let mins = a.durationMin || (a.duration ? (a.duration.includes('hour') ? parseFloat(a.duration)*60 : parseInt(a.duration)) : 30);
+      let cardHeight = Math.max(36, Math.round((mins / 60) * 40));
+
+      return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${widthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;" onclick="eventClick(event,${a.id})">
+        <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
+        <div class="party">${a.party}</div>
+      </div>`;
+    }).join("");
+
     o += `<div class="col" onclick="slot(event,'${key(x)}')">
       ${Array.from({length: 24}, () => '<div class="hour"></div>').join("")}
-      ${ev.map(a => {
-        let z = a.time.split(":");
-        let top = (+z[0] * 40) + (+z[1] / 60 * 40);
-        return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px" onclick="eventClick(event,${a.id})">
-          <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
-          <div class="party">${a.party}</div>
-        </div>`;
-      }).join("")}
+      ${evHtml}
       ${nowLine}
     </div>`;
   }
@@ -744,82 +847,187 @@ function owner(o, on) {
   render();
 }
 
-function create(date = key(d), time = new Date(2026,7,25,13,18).toTimeString().slice(0, 5)) {
+let selectedType = "Call";
+
+function setType(type) {
+  selectedType = type;
+  document.querySelectorAll(".type-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.type === type);
+  });
+}
+
+function create(date = key(d), time = "09:00") {
+  selectedType = "Call";
+  let formattedTime = time.length == 5 ? time : "09:00";
+  let defaultDateTime = `${date}T${formattedTime}`;
+  
   document.getElementById("drawer").innerHTML = `
     <div class="dhead">
-      <h2>Create Activity</h2>
+      <h2>Add New Activity</h2>
       <button class="close" onclick="closeDrawer()">×</button>
     </div>
     <div class="dbody">
       <div class="field">
-        <label>Activity Type</label>
-        <select id="t">
-          <option>Call</option>
-          <option>Email</option>
-          <option>Meeting</option>
-          <option>Task</option>
-        </select>
+        <label>Activity Type <span style="color:#f04438">*</span></label>
+        <div class="type-tabs">
+          <button type="button" class="type-btn active" data-type="Call" onclick="setType('Call')">☎ Calls</button>
+          <button type="button" class="type-btn" data-type="Email" onclick="setType('Email')">✉ Email</button>
+          <button type="button" class="type-btn" data-type="Meeting" onclick="setType('Meeting')">👥 Meeting</button>
+          <button type="button" class="type-btn" data-type="Task" onclick="setType('Task')">📋 Task</button>
+        </div>
       </div>
       <div class="field">
-        <label>Title / Subject</label>
-        <input id="ti" placeholder="Enter activity title">
-      </div>
-      <div class="field">
-        <label>Party</label>
-        <input id="pa" placeholder="Associated Party">
-      </div>
-      <div class="field">
-        <label>Associated Contact</label>
-        <input id="co" placeholder="e.g. Sarah Jenkins (VP Sales)">
+        <label>Title <span style="color:#f04438">*</span></label>
+        <input id="ti" placeholder="Enter title">
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Activity Date</label>
-          <input id="da" type="date" value="${date}">
+          <label>Party <span style="color:#f04438">*</span></label>
+          <select id="pa">
+            <option value="">Select Party</option>
+            <option value="Atlas Cargo">Atlas Cargo</option>
+            <option value="Pacific Trade">Pacific Trade</option>
+            <option value="Global Cargo Ltd.">Global Cargo Ltd.</option>
+            <option value="BlueStar Line">BlueStar Line</option>
+            <option value="Swift Logistics">Swift Logistics</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Opportunity</label>
+          <select id="op">
+            <option value="">Select Opportunity</option>
+            <option value="Q3 Freight Deal">Q3 Freight Deal</option>
+            <option value="Annual Air Charter">Annual Air Charter</option>
+            <option value="Ocean Import Contract">Ocean Import Contract</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Contacts</label>
+        <select id="co">
+          <option value="">Select Contacts</option>
+          <option value="Sarah Jenkins (VP Sales)">Sarah Jenkins (VP Sales)</option>
+          <option value="David Miller (Operations Head)">David Miller (Operations Head)</option>
+          <option value="Robert Vance (Logistics Mgr)">Robert Vance (Logistics Mgr)</option>
+          <option value="Elena Rostova (Supply Chain Lead)">Elena Rostova (Supply Chain Lead)</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Date and Time <span style="color:#f04438">*</span></label>
+          <input id="dtm" type="datetime-local" value="${defaultDateTime}">
         </div>
         <div class="field">
           <label>Duration</label>
-          <select id="du">
-            <option value="15 mins">15 mins</option>
-            <option value="30 mins" selected>30 mins</option>
-            <option value="45 mins">45 mins</option>
-            <option value="1 hour">1 hour</option>
-            <option value="1.5 hours">1.5 hours</option>
-            <option value="2 hours">2 hours</option>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input id="durH" type="number" min="0" max="23" value="0" style="width:65px;text-align:center" placeholder="HH"> <span style="font-size:12px;color:#667085;font-weight:600">h</span>
+            <input id="durM" type="number" min="0" max="59" value="30" style="width:65px;text-align:center" placeholder="MM"> <span style="font-size:12px;color:#667085;font-weight:600">m</span>
+          </div>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Direction</label>
+          <select id="dir">
+            <option value="">Select Call Direction</option>
+            <option value="Outbound">Outbound</option>
+            <option value="Inbound">Inbound</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Purpose</label>
+          <select id="pur">
+            <option value="">Select Call Purpose</option>
+            <option value="Sales Follow-up">Sales Follow-up</option>
+            <option value="Contract Renewal">Contract Renewal</option>
+            <option value="Rate Negotiation">Rate Negotiation</option>
           </select>
         </div>
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Activity Time</label>
-          <input id="tm" type="time" value="${time}">
+          <label>Outcome</label>
+          <select id="outc">
+            <option value="">Select Call Outcome</option>
+            <option value="Connected">Connected</option>
+            <option value="Left Voicemail">Left Voicemail</option>
+            <option value="Busy">Busy</option>
+          </select>
         </div>
         <div class="field">
-          <label>Activity Owner</label>
-          <input id="ow" value="Me">
+          <label>Status <span style="color:#f04438">*</span></label>
+          <select id="st">
+            <option value="New" selected>New</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
         </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Priority</label>
+          <select id="pri">
+            <option value="Low">Low</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Owner</label>
+          <select id="ow">
+            <option value="Hrucha Malusare">Hrucha Malusare</option>
+            <option value="Anita">Anita</option>
+            <option value="Rahul">Rahul</option>
+            <option value="Me" selected>Me</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Other Team Members</label>
+        <div class="tag-box">
+          <span class="tag-pill">Collins Carter <span class="remove" onclick="this.parentElement.remove()">×</span></span>
+          <span class="tag-pill">Adams Miller <span class="remove" onclick="this.parentElement.remove()">×</span></span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="notes" placeholder="Enter Notes"></textarea>
       </div>
     </div>
     <div class="dfoot">
       <button class="btn" onclick="closeDrawer()">Cancel</button>
-      <button class="btn primary" onclick="save()">Create Activity</button>
+      <button class="btn primary" onclick="save()">Save</button>
     </div>`;
   show();
 }
 
 function save() {
+  let titleVal = document.getElementById("ti").value.trim();
+  let dtmVal = document.getElementById("dtm").value;
+  if (!titleVal || !dtmVal) return alert("Title and Date/Time are required.");
+  
+  let partyVal = document.getElementById("pa").value.trim() || "Unassigned Party";
+  let contactVal = document.getElementById("co").value.trim() || "N/A";
+  let hh = parseInt(document.getElementById("durH").value) || 0;
+  let mm = parseInt(document.getElementById("durM").value) || 0;
+  let totalMins = (hh * 60) + mm || 30;
+  let durText = hh > 0 ? `${hh}h ${mm > 0 ? mm + 'm' : ''}` : `${mm || 30}m`;
+  
+  let [dVal, tVal] = dtmVal.split("T");
+  
   let a = {
     id: Date.now(),
-    type: t.value,
-    title: ti.value.trim(),
-    party: pa.value.trim() || "Unassigned Party",
-    contact: co.value.trim() || "N/A",
-    duration: du ? du.value : "30 mins",
-    owner: ow.value.trim() || "Me",
-    date: da.value,
-    time: tm.value
+    type: selectedType,
+    title: titleVal,
+    party: partyVal,
+    contact: contactVal,
+    duration: durText,
+    durationMin: totalMins,
+    owner: document.getElementById("ow").value || "Me",
+    date: dVal,
+    time: tVal ? tVal.slice(0, 5) : "09:00"
   };
-  if (!a.title || !a.date) return alert("Enter title and date.");
+  
   A.push(a);
   d = new Date(a.date + "T00:00:00");
   closeDrawer();
@@ -997,7 +1205,7 @@ document.addEventListener('mouseover', e => {
   const a = A.find(x => x.id === id);
   if (!a) return;
   
-  hover.innerHTML = `<b>${a.title}</b><div>Type: ${a.type}</div><div>Duration: ${a.duration || '30 mins'}</div><div>Party: ${a.party}</div><div>Contact: ${a.contact || 'N/A'}</div><div>Owner: ${a.owner}</div>`;
+  hover.innerHTML = `<b>${a.title}</b><div>Duration: ${a.duration || '30 mins'}</div><div>Party: ${a.party}</div><div>Contact: ${a.contact || 'N/A'}</div><div>Owner: ${a.owner}</div>`;
   hover.classList.add('show');
   const r = el.getBoundingClientRect();
   hover.style.left = Math.min(r.left, innerWidth - hover.offsetWidth - 12) + 'px';
