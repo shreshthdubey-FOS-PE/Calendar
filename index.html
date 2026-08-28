@@ -715,6 +715,14 @@ function render() {
     btnH.style.boxShadow = !isVert ? "0 1px 2px rgba(0,0,0,0.05)" : "none";
   }
 
+  let allOwners = [...new Set(A.map(a => a.owner))];
+  let filterSpan = document.querySelector("#filterBtn span");
+  if (filterSpan) {
+    if (!sel.size || sel.size == allOwners.length) filterSpan.textContent = "All Owners";
+    else if (sel.size == 1) filterSpan.textContent = Array.from(sel)[0];
+    else filterSpan.textContent = `${sel.size} Owners Selected`;
+  }
+
   if (v == "month") {
     month();
   } else {
@@ -1019,11 +1027,29 @@ function slot(e, date) {
   create(date, pad(h) + ":00");
 }
 
+function toggleSelectAllOwners(checked) {
+  let allOwners = [...new Set(A.map(a => a.owner))];
+  if (checked) {
+    allOwners.forEach(o => sel.add(o));
+  } else {
+    sel.clear();
+  }
+  render();
+}
+
 function ownerList() {
   let box = document.getElementById("owners");
-  box.innerHTML = [...new Set(A.map(a => a.owner))].sort().map(o => 
+  let allOwners = [...new Set(A.map(a => a.owner))].sort();
+  let allChecked = allOwners.length > 0 && allOwners.every(o => sel.has(o));
+  
+  let html = `<label class="owner" style="font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:4px;display:flex;align-items:center;gap:6px;color:#0f172a;"><input type="checkbox" ${allChecked ? "checked" : ""} onchange="toggleSelectAllOwners(this.checked)"> Select All</label>`;
+  
+  html += allOwners.map(o => 
     `<label class="owner"><input type="checkbox" ${sel.has(o) ? "checked" : ""} onchange="owner('${o}', this.checked)"> ${o}</label>`
-  ).join("") + '<div style="padding:8px;color:#1677c8;cursor:pointer;font-weight:600;font-size:11px" onclick="sel.clear();render()">Clear selection</div>';
+  ).join("");
+  
+  html += '<div style="padding:6px 4px 2px 4px;color:#1677c8;cursor:pointer;font-weight:600;font-size:11px" onclick="sel.clear();render()">Clear selection</div>';
+  box.innerHTML = html;
 }
 
 function ownersMenu() {
