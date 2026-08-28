@@ -486,7 +486,13 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
     <div>
       <h1>Calendar</h1>
     </div>
-    <button class="btn primary" onclick="create()">+ Create Activity</button>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div id="weekLayoutToggle" style="display:none;background:#f8fafc;padding:2px;border-radius:6px;border:1px solid #e2e8f0;align-items:center;gap:2px;">
+        <button id="btnVert" style="padding:3px 8px;font-size:11px;font-weight:600;border:0;background:#fff;color:#0f172a;border-radius:4px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);transition:all 0.12s ease;" onclick="setWeekLayout('vertical')">📊 Vertical</button>
+        <button id="btnHori" style="padding:3px 8px;font-size:11px;font-weight:500;border:0;background:transparent;color:#64748b;border-radius:4px;cursor:pointer;transition:all 0.12s ease;" onclick="setWeekLayout('horizontal')">☰ Horizontal</button>
+      </div>
+      <button class="btn primary" onclick="create()">+ Create Activity</button>
+    </div>
   </header>
 
   <section class="card">
@@ -539,64 +545,73 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 
 <script>
 const A = [
-  // ----------------------------------------------------
-  // WEEK VIEW DEMO DATA (Mon Aug 24 - Sun Aug 30, 2026)
-  // ----------------------------------------------------
+  // =========================================================================
+  // BENCHMARK TEST SUITE: CORE CASES & EDGE CASES
+  // =========================================================================
 
-  // Mon Aug 24: 2h long meeting (80px tall card) & 30m call
-  {id:30, type:"Meeting", title:"Executive Strategy Review", party:"Global Cargo Ltd.", contact:"Robert Vance", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-24", time:"09:00", opportunity:"Annual Air Charter", direction:"Outbound", purpose:"Strategy Review", outcome:"Connected", status:"Completed", priority:"High", notes:"2-Hour executive strategy review meeting with Global Cargo management."},
-  {id:31, type:"Call", title:"Weekly Freight Alignment", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-24", time:"11:30", opportunity:"Ocean Import Contract", status:"Completed"},
+  // --- CASE 1, 2, 8 & 9: Mon Aug 24 ---
+  // - Dynamic Durations (2h = 80px, 1.5h = 60px, 1h = 40px, 30m = 36px, 15m = 36px)
+  // - Multi-Hour Interval Collision (09:00-11:00 2h meeting overlaps at 10:00 AM with 1h Call)
+  // - Lengthy Title & Enterprise Party Name + Multiple Contacts
+  {id:101, type:"Meeting", title:"Urgent Spot Rate Negotiation & Air Charter Capacity Alignment for Q4 Peak Season", party:"International Freight & Multimodal Global Logistics Services Corp.", contact:"Sarah Jenkins (VP Sales), Robert Vance (Logistics Mgr), Elena Rostova (Supply Chain Lead)", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-24", time:"09:00", opportunity:"Q4 Peak Air Charter", direction:"Outbound", purpose:"Rate Negotiation", outcome:"Connected", status:"Completed", priority:"High", notes:"2-Hour executive strategy meeting demonstrating lengthy text, multi-contacts, and multi-hour interval collision."},
+  {id:102, type:"Call", title:"Mid-Morning Carrier Space Sync", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"1h", durationMin:60, owner:"Me", date:"2026-08-24", time:"10:00", opportunity:"Annual Air Charter", status:"Completed"},
+  {id:103, type:"Meeting", title:"Strategy Alignment Session", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-24", time:"11:30", opportunity:"Q3 Freight Deal", status:"Completed"},
+  {id:104, type:"Call", title:"Rate Follow-up Call", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-24", time:"13:30", status:"Completed"},
+  {id:105, type:"Email", title:"Send Tariff Confirmation", party:"BlueSky Freight", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-24", time:"14:30", status:"Completed"},
 
-  // Tue Aug 25 (Today): 
-  // 1) 09:00 AM 30m Call
-  // 2) 10:30 AM OVERLAPPING 2 CALLS (50%/50% side-by-side split!)
-  // 3) 14:30 PM 1.5h Meeting (60px card height)
-  // 4) 16:30 PM 15m Email
-  {id:32, type:"Call", title:"Morning Space Sync", party:"BlueStar Line", contact:"Elena Rostova", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"09:00", status:"Completed"},
-  {id:2, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"10:00", opportunity:"Ocean Import Contract", direction:"Outbound", purpose:"Rate Negotiation", outcome:"Connected", status:"In Progress", priority:"High", notes:"Discussed spot rates for Shanghai-LA route."},
-  {id:8, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"10:00", opportunity:"Annual Air Charter", direction:"Inbound", purpose:"Rate Sync", outcome:"Connected", status:"In Progress", priority:"Medium", notes:"Coordinating carrier space allocation."},
+  // --- CASE 3 & 5: Tue Aug 25 (Today) ---
+  // - 09:00 AM: 2 Overlapping Meetings (50% / 50% split)
+  // - 10:30 AM: 3 Overlapping Calls (3-way split in Day View)
+  // - 11:00 AM: 5 Overlapping Activities (Day View MAX=4 threshold -> 3 cards + +2 more pill)
+  // - 14:00 PM: Multi-Hour Overlapping Meeting (2h meeting overlaps 1h call at 15:00 PM)
+  {id:201, type:"Call", title:"Morning Executive Space Sync", party:"BlueStar Line", contact:"Elena Rostova", duration:"1h", durationMin:60, owner:"Anita", date:"2026-08-25", time:"09:00", status:"Completed"},
+  {id:202, type:"Call", title:"Key Carrier Alignment Call", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-25", time:"09:00", status:"Completed"},
 
-  // 11:00 AM OVERLAPPING 5 ACTIVITIES (Tests Day View MAX=4 threshold -> 3 cards + +2 more pill!)
-  {id:60, type:"Call", title:"Rate Negotiation Call", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"In Progress"},
-  {id:61, type:"Call", title:"Carrier Capacity Sync", party:"Swift Logistics", contact:"Anita Roy", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"11:00", status:"In Progress"},
-  {id:62, type:"Meeting", title:"Contract Draft Review", party:"Pacific Trade", contact:"David Miller", duration:"45m", durationMin:45, owner:"Rahul", date:"2026-08-25", time:"11:00", status:"New"},
-  {id:63, type:"Task", title:"Documentation Check", party:"Vance Logistics", contact:"Lisa Ray", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"New"},
-  {id:64, type:"Email", title:"Send Tariff Update", party:"Oceanic Trans", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-25", time:"11:00", status:"Completed"},
+  {id:203, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"1h", durationMin:60, owner:"Me", date:"2026-08-25", time:"10:30", opportunity:"Ocean Import Contract", status:"In Progress"},
+  {id:204, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-25", time:"10:30", status:"In Progress"},
+  {id:205, type:"Task", title:"Customs Document Verification", party:"Vance Logistics", contact:"Lisa Ray (Customs Agent)", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-25", time:"10:30", status:"New"},
 
-  {id:3, type:"Meeting", title:"Sprint Alignment & Strategy", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-25", time:"14:30", opportunity:"Q3 Freight Deal", direction:"Outbound", purpose:"Contract Renewal", outcome:"Connected", status:"New", priority:"High", notes:"Strategic alignment meeting with Operations Head."},
-  {id:6, type:"Email", title:"Send Quotation & Contract", party:"BlueSky Freight", contact:"David Miller (Operations Head)", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-25", time:"16:30", opportunity:"Q3 Freight Deal", status:"Completed"},
+  {id:206, type:"Call", title:"Rate Negotiation Call", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"In Progress"},
+  {id:207, type:"Call", title:"Carrier Capacity Sync", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"11:00", status:"In Progress"},
+  {id:208, type:"Meeting", title:"Contract Draft Review", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"45m", durationMin:45, owner:"Rahul", date:"2026-08-25", time:"11:00", status:"New"},
+  {id:209, type:"Task", title:"Documentation Check", party:"Vance Logistics", contact:"Lisa Ray (Customs Agent)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"New"},
+  {id:210, type:"Email", title:"Send Tariff Update", party:"Oceanic Trans", contact:"Robert Vance (Logistics Mgr)", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-25", time:"11:00", status:"Completed"},
 
-  // Wed Aug 26: OVERLAPPING 4 ACTIVITIES at 11:00 AM (Triggers OVERLAP_MAX_VISIBLE overflow -> 2 cards + +2 more pill!)
-  {id:40, type:"Meeting", title:"Q3 Freight Contract Review", party:"Horizon Logistics", contact:"Alex Wong", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-26", time:"11:00", status:"In Progress"},
-  {id:41, type:"Call", title:"Air Freight Booking Followup", party:"Vance Logistics", contact:"Robert Vance", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-26", time:"11:00", status:"In Progress"},
-  {id:42, type:"Email", title:"Send Revised Tariff Sheet", party:"Oceanic Trans", contact:"Lisa Ray", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-26", time:"11:00", status:"Completed"},
-  {id:43, type:"Task", title:"Verify Customs Import Bond", party:"Swift Freight", contact:"David Miller", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-26", time:"11:00", status:"New"},
+  {id:211, type:"Meeting", title:"Q3 Enterprise Freight Contract Review", party:"International Freight & Multimodal Global Logistics Services Corp.", contact:"Sarah Jenkins (VP Sales), Robert Vance", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-25", time:"14:00", status:"New", priority:"High", notes:"2-Hour enterprise review meeting."},
+  {id:212, type:"Call", title:"Operations Alignment Touchpoint", party:"Pacific Exports", contact:"Michael Chang", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-25", time:"15:00", status:"New"},
 
-  // Thu Aug 27: 1h Task & 2h Operations Audit Meeting
-  {id:4, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova (Supply Chain Lead)", duration:"1h", durationMin:60, owner:"Anita", date:"2026-08-27", time:"10:00", status:"Completed"},
-  {id:50, type:"Meeting", title:"Logistics Operations Audit", party:"Apex Shipping", contact:"Carlos Mendez", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-27", time:"14:00", status:"In Progress"},
+  // --- CASE 4: Wed Aug 26 ---
+  // - 11:00 AM: 4 Overlapping Activities (Week View MAX=2 threshold -> Card 1 + +3 more pill)
+  {id:301, type:"Meeting", title:"Q3 Freight Contract Review", party:"Horizon Logistics", contact:"Alex Wong (Director)", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-26", time:"11:00", status:"In Progress"},
+  {id:302, type:"Call", title:"Air Freight Booking Followup", party:"Vance Logistics", contact:"Robert Vance (Logistics Mgr)", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-26", time:"11:00", status:"In Progress"},
+  {id:303, type:"Email", title:"Send Revised Tariff Sheet", party:"Oceanic Trans", contact:"Lisa Ray (Customs Agent)", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-26", time:"11:00", status:"Completed"},
+  {id:304, type:"Task", title:"Verify Customs Import Bond", party:"Swift Freight", contact:"David Miller (Operations Head)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-26", time:"11:00", status:"New"},
 
-  // Fri Aug 28: 1h Huddle & 30m Feedback Call
-  {id:51, type:"Meeting", title:"Weekly Sales Team Huddle", party:"Internal Sales", contact:"Sales Team", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-28", time:"09:30", status:"Completed"},
-  {id:52, type:"Call", title:"Client Feedback & NPS Call", party:"Pacific Exports", contact:"Michael Chang", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-28", time:"15:00", status:"New"},
+  // --- EDGE CASE 10 & 11: Thu Aug 27 ---
+  // - 09:00 AM: Micro-duration event (5m call) $\rightarrow$ Clamped at 36px height floor
+  // - 23:30 PM: Late night spanning event (23:30 - 01:30 2h meeting) $\rightarrow$ Clamped at midnight (23:59)
+  {id:401, type:"Call", title:"Quick Gate Status Ping", party:"FastTrack Logistics", contact:"Mark Spencer", duration:"5m", durationMin:5, owner:"Me", date:"2026-08-27", time:"09:00", status:"Completed", notes:"5-minute micro duration event demonstrating 36px height floor."},
+  {id:402, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova", duration:"1h", durationMin:60, owner:"Anita", date:"2026-08-27", time:"10:00", status:"Completed"},
+  {id:403, type:"Meeting", title:"Logistics Operations Audit", party:"Apex Shipping", contact:"Carlos Mendez", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-27", time:"14:00", status:"In Progress"},
+  {id:404, type:"Meeting", title:"Late Night Overseas Alignment Call", party:"Asia-Pacific Shipping Corp.", contact:"Kenji Sato", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-27", time:"23:30", status:"New", notes:"Late night event starting at 23:30 demonstrating midnight boundary clamping."},
 
-  // Sat Aug 29: Weekend Meeting
-  {id:5, type:"Meeting", title:"Quarterly Business Review", party:"BlueSky Exports", contact:"Michael Chang (Managing Director)", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-29", time:"15:00", status:"New"},
+  // --- EDGE CASE 12: Fri Aug 28 ---
+  // - Missing / Null Payload Fields (null party & title) $\rightarrow$ Fallback text rendered
+  {id:501, type:"Call", title:"", party:"", contact:"Unknown Contact", duration:"30m", durationMin:30, owner:"System", date:"2026-08-28", time:"10:00", status:"New", notes:"Payload with null party and null title demonstrating defensive fallback text."},
+  {id:502, type:"Meeting", title:"Weekly Sales Team Huddle", party:"Internal Sales", contact:"Sales Team", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-28", time:"11:30", status:"Completed"},
 
-  // ----------------------------------------------------
-  // OTHER MONTH OVERFLOW TEST DATES
-  // ----------------------------------------------------
-  // 2026-08-12: 3 activities (Tests MAX=2 threshold -> 1 card + +2 more)
-  {id:10, type:"Call", title:"Initial Inquiry Followup", party:"Vance Logistics", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-12", time:"09:30", status:"In Progress"},
-  {id:11, type:"Email", title:"Quote Submission", party:"Vance Logistics", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Me", date:"2026-08-12", time:"11:00", status:"Completed"},
-  {id:12, type:"Task", title:"Check Customs Clearance", party:"Vance Logistics", contact:"Lisa Ray", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-12", time:"14:00", status:"New"},
+  // --- MONTH VIEW CAPACITY TEST DATES ---
+  // 2026-08-12: 3 activities (Tests MAX=2 cell capacity -> 1 card + +2 more)
+  {id:601, type:"Call", title:"Initial Inquiry Followup", party:"Vance Logistics", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-12", time:"09:30", status:"In Progress"},
+  {id:602, type:"Email", title:"Quote Submission", party:"Vance Logistics", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Me", date:"2026-08-12", time:"11:00", status:"Completed"},
+  {id:603, type:"Task", title:"Check Customs Clearance", party:"Vance Logistics", contact:"Lisa Ray", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-12", time:"14:00", status:"New"},
 
-  // 2026-08-18: 5 activities (Tests MAX=4 threshold -> 3 cards + +2 more)
-  {id:20, type:"Call", title:"Client Touchpoint", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"09:00", status:"Completed"},
-  {id:21, type:"Meeting", title:"Quarterly Contract Review", party:"Apex Shipping", contact:"Carlos Mendez", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-18", time:"10:30", status:"Completed"},
-  {id:22, type:"Email", title:"Send Revision 2 Quote", party:"Apex Shipping", contact:"Carlos Mendez", duration:"15m", durationMin:15, owner:"Rahul", date:"2026-08-18", time:"13:00", status:"Completed"},
-  {id:23, type:"Task", title:"Update CRM Records", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"15:00", status:"Completed"},
-  {id:24, type:"Call", title:"Closing Confirmation Call", party:"Apex Shipping", contact:"Carlos Mendez", duration:"20m", durationMin:20, owner:"Rahul", date:"2026-08-18", time:"16:30", status:"Completed"}
+  // 2026-08-18: 5 activities (Tests MAX=4 cell capacity -> 3 cards + +2 more)
+  {id:701, type:"Call", title:"Client Touchpoint", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"09:00", status:"Completed"},
+  {id:702, type:"Meeting", title:"Quarterly Contract Review", party:"Apex Shipping", contact:"Carlos Mendez", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-18", time:"10:30", status:"Completed"},
+  {id:703, type:"Email", title:"Send Revision 2 Quote", party:"Apex Shipping", contact:"Carlos Mendez", duration:"15m", durationMin:15, owner:"Rahul", date:"2026-08-18", time:"13:00", status:"Completed"},
+  {id:704, type:"Task", title:"Update CRM Records", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"15:00", status:"Completed"},
+  {id:705, type:"Call", title:"Closing Confirmation Call", party:"Apex Shipping", contact:"Carlos Mendez", duration:"20m", durationMin:20, owner:"Rahul", date:"2026-08-18", time:"16:30", status:"Completed"}
 ];
 
 const C = {Call:"call", Email:"email", Meeting:"meeting", Task:"task"};
@@ -670,11 +685,36 @@ function label() {
   return `Week ${wn} (${d.toLocaleDateString("en-US", {month: "long", year: "numeric"})})`;
 }
 
+let weekLayoutMode = localStorage.getItem("fo-week-layout") || "vertical";
+
+function setWeekLayout(mode) {
+  weekLayoutMode = mode;
+  localStorage.setItem("fo-week-layout", mode);
+  render();
+}
+
 function render() {
   document.getElementById("range").textContent = label();
   document.getElementById("today").classList.toggle("off", current());
   document.querySelectorAll(".views button").forEach(b => b.classList.toggle("active", b.dataset.v == v));
   
+  let toggle = document.getElementById("weekLayoutToggle");
+  if (toggle) {
+    toggle.style.display = (v == "week") ? "inline-flex" : "none";
+    let isVert = (weekLayoutMode == "vertical");
+    let btnV = document.getElementById("btnVert");
+    let btnH = document.getElementById("btnHori");
+    btnV.style.background = isVert ? "#fff" : "transparent";
+    btnV.style.color = isVert ? "#0f172a" : "#64748b";
+    btnV.style.fontWeight = isVert ? "600" : "500";
+    btnV.style.boxShadow = isVert ? "0 1px 2px rgba(0,0,0,0.05)" : "none";
+    
+    btnH.style.background = !isVert ? "#fff" : "transparent";
+    btnH.style.color = !isVert ? "#0f172a" : "#64748b";
+    btnH.style.fontWeight = !isVert ? "600" : "500";
+    btnH.style.boxShadow = !isVert ? "0 1px 2px rgba(0,0,0,0.05)" : "none";
+  }
+
   if (v == "month") {
     month();
   } else {
@@ -775,7 +815,9 @@ function more(e, date) {
             <span class="event ${C[a.type]}" style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:0">
               <span style="margin-right:4px">${ICON[a.type]}</span> ${a.type}
             </span>
-            <span style="font-size:11px;color:#667085;font-weight:500">⏱️ ${a.duration || '30 mins'}</span>
+            <span style="font-size:11px;color:#475467;font-weight:600;background:#f8fafc;padding:3px 8px;border-radius:4px;border:1px solid #eaecf0">
+              🕙 <b>${prettyTime(a.time)}</b> • ⏱️ ${a.duration || '30m'}
+            </span>
           </div>
           <div style="font-weight:700;font-size:13px;color:#101828;margin-bottom:4px">${a.title}</div>
           <div style="font-size:12px;color:#344054;margin-bottom:2px">🏢 <b>Party:</b> ${a.party}</div>
@@ -813,53 +855,125 @@ function time() {
     let ev = visible().filter(a => a.date == key(x));
     let nowLine = (key(x) == "2026-08-25") ? '<div class="now" style="top:532px"></div>' : '';
     
-    let groups = {};
-    ev.forEach(a => {
-      let z = a.time.split(":");
-      let top = (+z[0] * 40) + (+z[1] / 60 * 40);
-      groups[top] = groups[top] || [];
-      groups[top].push(a);
+    // Horizontal Row Stack Mode for Week View (Month-style full-width stacked rows)
+    if (v == "week" && weekLayoutMode == "horizontal") {
+      let slotGroups = {};
+      ev.forEach(a => {
+        let [h] = (a.time || "09:00").split(':').map(Number);
+        let top = h * 40;
+        slotGroups[top] = slotGroups[top] || [];
+        slotGroups[top].push(a);
+      });
+
+      let horiHtml = "";
+      Object.keys(slotGroups).forEach(slotTopStr => {
+        let top = Number(slotTopStr);
+        let list = slotGroups[slotTopStr];
+        let maxVis = 2; // Max 2 horizontal rows per hour slot in Week View
+        
+        if (list.length <= maxVis) {
+          list.forEach((a, idx) => {
+            let rowTop = top + (idx * 19) + 2;
+            let safeTitle = a.title || "Untitled Activity";
+            let safeParty = a.party || "Unassigned Party";
+            horiHtml += `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" style="position:absolute;top:${rowTop}px;left:2px;right:2px;height:17px;font-size:10px;padding:1px 6px;margin:0;z-index:3;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;" onclick="eventClick(event,${a.id})">
+              <span class="type-label" style="font-weight:700">${a.type}:</span>
+              <span class="party-name" style="font-weight:600">${safeParty}</span>
+            </div>`;
+          });
+        } else {
+          let a = list[0];
+          let safeTitle = a.title || "Untitled Activity";
+          let safeParty = a.party || "Unassigned Party";
+          horiHtml += `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" style="position:absolute;top:${top + 2}px;left:2px;right:2px;height:17px;font-size:10px;padding:1px 6px;margin:0;z-index:3;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;" onclick="eventClick(event,${a.id})">
+            <span class="type-label" style="font-weight:700">${a.type}:</span>
+            <span class="party-name" style="font-weight:600">${safeParty}</span>
+          </div>`;
+          let overflowCount = list.length - 1;
+          horiHtml += `<div class="more" style="position:absolute;top:${top + 20}px;left:2px;right:2px;height:17px;font-size:9.5px;padding:1px 6px;margin:0;z-index:3;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fce7f3;color:#831843;border-radius:4px;font-weight:700;" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
+        }
+      });
+
+      o += `<div class="col" onclick="slot(event,'${key(x)}')">
+        ${Array.from({length: 24}, () => '<div class="hour"></div>').join("")}
+        ${horiHtml}
+        ${nowLine}
+      </div>`;
+      continue;
+    }
+
+    // Interval-based collision detection with defensive clamping and null fallbacks
+    let items = ev.map(a => {
+      let [h, m] = (a.time || "09:00").split(':').map(Number);
+      let startMin = h * 60 + (m || 0);
+      let durMin = a.durationMin || (a.duration ? (a.duration.includes('hour') ? parseFloat(a.duration)*60 : parseInt(a.duration)) : 30);
+      let endMin = Math.min(1440, startMin + durMin); // Clamp at midnight (23:59)
+      return { a, startMin, endMin, durMin, col: 0, maxCols: 1 };
     });
+
+    items.sort((a, b) => a.startMin - b.startMin || b.durMin - a.durMin);
+
+    for (let j = 0; j < items.length; j++) {
+      let item = items[j];
+      let overlapping = items.filter(other => other.startMin < item.endMin && item.startMin < other.endMin);
+      let usedCols = new Set(overlapping.filter(other => other !== item && items.indexOf(other) < j).map(other => other.col));
+      let col = 0;
+      while (usedCols.has(col)) col++;
+      item.col = col;
+      let clusterStart = Math.min(...overlapping.map(o => o.startMin));
+      let clusterTotal = overlapping.length;
+      let clusterMax = Math.max(...overlapping.map(o => o.col + 1), clusterTotal);
+      overlapping.forEach(o => { 
+        o.maxCols = Math.max(o.maxCols || 1, clusterMax);
+        o.clusterStart = (o.clusterStart === undefined) ? clusterStart : Math.min(o.clusterStart, clusterStart);
+        o.clusterTotal = Math.max(o.clusterTotal || 1, clusterTotal);
+      });
+    }
 
     let OVERLAP_MAX_VISIBLE = (v == "day") ? 4 : 2;
     let overflowRendered = {};
 
-    let evHtml = ev.map(a => {
-      let z = a.time.split(":");
-      let top = (+z[0] * 40) + (+z[1] / 60 * 40);
-      let sameSlot = groups[top] || [a];
-      let count = sameSlot.length;
-      let index = sameSlot.indexOf(a);
-
-      let mins = a.durationMin || (a.duration ? (a.duration.includes('hour') ? parseFloat(a.duration)*60 : parseInt(a.duration)) : 30);
-      let cardHeight = Math.max(36, Math.round((mins / 60) * 40));
+    let evHtml = items.map(item => {
+      let a = item.a;
+      let top = Math.round((item.startMin / 60) * 40) + 1;
+      let count = item.maxCols;
+      let index = item.col;
+      let slotHeight = Math.round((item.durMin / 60) * 40);
+      let cardHeight = Math.max(18, slotHeight - 2); // 2px vertical padding gap to prevent adjacent slot overlap
+      let safeTitle = a.title || "Untitled Activity";
+      let safeParty = a.party || "Unassigned Party";
 
       if (count <= OVERLAP_MAX_VISIBLE) {
         let colWidthPct = (100 / count);
         let cardWidthPct = colWidthPct - 2;
         let leftPct = (index * colWidthPct) + 1;
-        return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;" onclick="eventClick(event,${a.id})">
-          <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
-          <div class="party">${a.party}</div>
+        return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;display:flex;align-items:center;" onclick="eventClick(event,${a.id})">
+          <div class="title-row" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">
+            <span style="font-weight:700">${a.type}:</span>
+            <span style="font-weight:500">${safeParty}</span>
+          </div>
         </div>`;
       } else {
-        // Overlapping Overflow (> 2 events in Week View or > 4 in Day View)
-        let visibleCardsCount = OVERLAP_MAX_VISIBLE - 1; // 1 card in Week, 3 cards in Day
+        let visibleCardsCount = OVERLAP_MAX_VISIBLE - 1;
         let colWidthPct = (100 / OVERLAP_MAX_VISIBLE);
         let cardWidthPct = colWidthPct - 2;
 
         if (index < visibleCardsCount) {
           let leftPct = (index * colWidthPct) + 1;
-          return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;" onclick="eventClick(event,${a.id})">
-            <div class="title-row"><span class="activity-icon">${ICON[a.type]}</span> <span>${a.title}</span></div>
-            <div class="party">${a.party}</div>
+          return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;display:flex;align-items:center;" onclick="eventClick(event,${a.id})">
+            <div class="title-row" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">
+              <span style="font-weight:700">${a.type}:</span>
+              <span style="font-weight:500">${safeParty}</span>
+            </div>
           </div>`;
         } else {
-          if (!overflowRendered[top]) {
-            overflowRendered[top] = true;
-            let overflowCount = count - visibleCardsCount;
+          let clusterKey = item.clusterStart;
+          if (!overflowRendered[clusterKey]) {
+            overflowRendered[clusterKey] = true;
+            let overflowCount = item.clusterTotal - visibleCardsCount;
             let leftPct = (visibleCardsCount * colWidthPct) + 1;
-            return `<div class="more tevent-more" style="position:absolute;top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:36px;background:#fce7f3;color:#831843;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;box-shadow:0 1px 3px rgba(0,0,0,0.1);" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
+            let clusterTop = (clusterKey / 60) * 40;
+            return `<div class="more tevent-more" style="position:absolute;top:${clusterTop}px;left:${leftPct}%;width:${cardWidthPct}%;height:36px;background:#fce7f3;color:#831843;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;box-shadow:0 1px 3px rgba(0,0,0,0.1);" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
           }
           return "";
         }
