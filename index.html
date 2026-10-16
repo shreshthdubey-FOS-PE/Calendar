@@ -16,27 +16,29 @@
   --tx-sec: #475467;
   --mu: #667085;
   --bg: #f8fafc;
-  --ca-bg: #e0f7f6; --ca-bd: #00918e; --ca-tx: #0a4f4b;
-  --em-bg: #f0f1ff; --em-bd: #676dff; --em-tx: #25287a;
-  --me-bg: #e6f9fc; --me-bd: #1ecbe2; --me-tx: #095963;
-  --ta-bg: #e8f4fc; --ta-bd: #0092e4; --ta-tx: #0b4569;
+  --ca-bg: #daf1ee; --ca-bd: #008276; --ca-tx: #008276;
+  --em-bg: #eaebff; --em-bd: #676dff; --em-tx: #676dff;
+  --me-bg: #e0f8fb; --me-bd: #06b6d4; --me-tx: #0891b2;
+  --ta-bg: #dbf0fb; --ta-bd: #0092e4; --ta-tx: #0092e4;
   --sidebar: #194381;
 }
 
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: var(--bg);
+  background: #f8f8f8;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
   color: var(--tx);
   -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
 }
 
 button, input, select, textarea { font-family: inherit; font-size: inherit; }
 
-.app { min-height: 100vh; padding: 0; max-width: none; margin: auto; display: flex; }
-.shell { min-width: 0; flex: 1; padding: 16px 24px 20px; display: flex; flex-direction: column; min-height: 100vh; }
+.app { height: 100vh; max-height: 100vh; padding: 0; max-width: none; margin: 0; display: flex; overflow: hidden; background: #f8f8f8; }
+.shell { min-width: 0; flex: 1; height: 100vh; max-height: 100vh; padding: 14px 20px 6px 20px; display: flex; flex-direction: column; min-height: 0; box-sizing: border-box; overflow: hidden; background: #f8f8f8; }
 
 /* Sidebar Component */
 .sidebar { width: 220px; flex: 0 0 220px; background: var(--sidebar); color: #fff; min-height: 100vh; overflow: hidden; transition: width 0.2s ease, flex-basis 0.2s ease; }
@@ -60,30 +62,31 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 .nav-icon { width: 16px; text-align: center; font-size: 12px; }
 .nav-arrow { margin-left: auto; font-size: 11px; opacity: 0.7; }
 
-/* Main Card Container */
+/* Main Container - Canvas is transparent so individual cards float seamlessly */
 .card {
-  background: #fff;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  overflow: visible;
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* Unified Main Calendar Toolbar - Exactly Matched to Live Screenshots */
+/* Unified Main Calendar Toolbar - Exactly Matched to Live Screenshot */
 .toolbar {
-  min-height: 58px;
-  padding: 10px 16px;
+  min-height: 44px;
+  padding: 0 0 12px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid var(--bd);
-  background: #fff;
-  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+  background: transparent;
   position: relative;
   z-index: 25;
+  flex: none;
 }
 .left, .right { display: flex; align-items: center; gap: 8px; }
 
@@ -447,87 +450,151 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
   color: #fff;
 }
 
-/* Month Grid Layout (Matched to Live Screenshot 1) */
-.scroll { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.weekhead, .monthgrid { min-width: 900px; display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); }
+/* Month Grid Layout (Matched 1:1 to Live Dev Screenshot) */
+.scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#month {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .weekhead {
-  background: #fff;
-  border-bottom: 1px solid var(--bd);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 0 0 6px 0;
+  background: transparent;
+  border-bottom: none;
+  flex: none;
 }
 .weekhead div {
-  text-align: center;
-  padding: 10px;
-  border-right: 1px solid var(--bd);
-  font-weight: 700;
   font-size: 11px;
-  color: #6b7280;
-  background: #fff;
+  font-weight: 700;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  padding: 0 4px;
+  text-align: left;
+  border-right: none;
+  background: transparent;
+  letter-spacing: 0.3px;
 }
-.weekhead div:last-child { border-right: 0; }
 
 .monthgrid {
-  grid-auto-rows: minmax(115px, 1fr);
   flex: 1;
-  max-height: calc(100vh - 180px);
-  overflow-y: auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(var(--num-weeks, 5), 1fr);
+  gap: 6px;
+  overflow: hidden;
 }
+
 .day {
-  border-top: 1px solid var(--bd);
-  border-right: 1px solid var(--bd);
-  padding: 8px;
+  background: #ffffff;
+  border: 1px solid #eef2f6;
+  border-radius: 8px;
+  padding: 6px 8px 4px 8px;
   cursor: pointer;
-  transition: background 0.12s ease;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
   position: relative;
-  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
 }
-.day:hover { background: #f9fafb; }
-.day:nth-child(7n) { border-right: 0; }
-.day.muted { background: #fff; }
-.day.muted .num { color: #9ca3af; }
+.day:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+}
+.day.muted {
+  background: #ffffff;
+}
+.day.muted .num {
+  color: #8da2be;
+  font-weight: 600;
+}
 
 /* Day Focus Feature in Month View */
 .day.focused-cell {
-  background: #f8fafc;
-  box-shadow: inset 0 0 0 2px #194381;
+  box-shadow: 0 0 0 2px #194381;
+  border-color: #194381;
 }
 
-.date { height: 24px; margin-bottom: 4px; display: flex; align-items: center; }
-.num { font-size: 11.5px; font-weight: 600; color: #111827; }
-/* Today Indicator in Month View (Matched to Live Screenshot 1: Solid Navy Circle) */
+.date {
+  height: 22px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.num {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  padding-left: 0;
+}
+/* Today Indicator in Month View (Matched to Live Screenshot: Solid Navy Circle) */
 .todaynum {
   background: #194381;
   color: #fff;
   border-radius: 50%;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
+  font-size: 11.5px;
 }
 
-/* Activity Event Pill (Matched to Live: 📞 11:15:00 AM - Test) */
+/* Activity Event Pill (Matched 1:1 to Live Dev Card) */
 .event {
   position: relative;
-  height: 23px;
-  margin: 3px 0;
-  padding: 2px 8px;
-  border-radius: 6px;
+  height: 19px;
+  margin: 2px 0;
+  padding: 0 6px;
+  border-radius: 3.5px;
   display: flex;
   gap: 5px;
   align-items: center;
-  color: var(--tx);
   font-size: 11px;
   font-weight: 600;
   overflow: hidden;
-  border-left: 3.5px solid transparent;
+  border-left: 3px solid transparent;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
+  white-space: nowrap;
+  flex: none;
 }
-.event:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
-.event-time { font-weight: 500; font-size: 10.5px; opacity: 0.95; }
-.event-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+.event .type-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.event .event-svg {
+  display: block;
+}
+.event .event-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  font-size: 11px;
+}
 
 .call { background: var(--ca-bg); border-left-color: var(--ca-bd); color: var(--ca-tx); }
 .email { background: var(--em-bg); border-left-color: var(--em-bd); color: var(--em-tx); }
@@ -535,17 +602,18 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
 .task { background: var(--ta-bg); border-left-color: var(--ta-bd); color: var(--ta-tx); }
 
 .more {
-  height: 22px;
-  padding: 3px 8px;
+  height: 19px;
+  padding: 2px 6px;
   color: #831843;
   font-weight: 700;
   cursor: pointer;
-  font-size: 10.5px;
-  border-radius: 6px;
+  font-size: 10px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   background: #fce7f3;
-  margin-top: 3px;
+  margin-top: 2px;
+  flex: none;
 }
 .more:hover { background: #fbcfe8; }
 
@@ -889,30 +957,28 @@ const A = [
 
   // --- Mon Oct 12 ---
   {id:802, type:"Meeting", title:"Carrier Space & Q4 Air Charter Sync", party:"Pacific Trade", contact:"Sarah Jenkins", duration:"1h 30m", durationMin:90, owner:"Anita", date:"2026-10-12", time:"09:30", status:"Completed"},
-  {id:803, type:"Call", title:"Rate Followup", party:"Swift Logistics", contact:"Robert Vance", duration:"45m", durationMin:45, owner:"Me", date:"2026-10-12", time:"11:00", status:"Completed"},
+  {id:803, type:"Call", title:"Rate Followup", party:"Swift Logistics", contact:"Robert Vance", duration:"45m", durationMin:45, owner:"Anita", date:"2026-10-12", time:"11:00", status:"Completed"},
 
   // --- Tue Oct 13 ---
   {id:804, type:"Task", title:"Customs Document Verification", party:"BlueStar Line", contact:"Lisa Ray", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-10-13", time:"10:00", status:"Completed"},
-  {id:805, type:"Call", title:"Spot Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-13", time:"14:00", status:"Completed"},
+  {id:805, type:"Call", title:"Spot Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Anita", date:"2026-10-13", time:"14:00", status:"Completed"},
 
   // --- Wed Oct 14 ---
   {id:806, type:"Meeting", title:"Contract Strategy Review", party:"Global Cargo Ltd.", contact:"Anita Roy", duration:"1h", durationMin:60, owner:"Anita", date:"2026-10-14", time:"10:30", status:"Completed"},
-  {id:807, type:"Call", title:"Air Freight Booking Touchpoint", party:"Atlas Cargo", contact:"Elena Rostova", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-14", time:"11:00", status:"Completed"},
+  {id:807, type:"Call", title:"Air Freight Booking Touchpoint", party:"Atlas Cargo", contact:"Elena Rostova", duration:"30m", durationMin:30, owner:"Anita", date:"2026-10-14", time:"11:00", status:"Completed"},
   {id:808, type:"Email", title:"Send Revised Tariff Sheet", party:"Oceanic Trans", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Anita", date:"2026-10-14", time:"11:00", status:"Completed"},
 
   // --- Thu Oct 15 ---
-  {id:809, type:"Call", title:"Carrier Space Booking", party:"Swift Freight", contact:"David Miller", duration:"1h", durationMin:60, owner:"Me", date:"2026-10-15", time:"09:00", status:"Completed"},
+  {id:809, type:"Call", title:"Carrier Space Booking", party:"Swift Freight", contact:"David Miller", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-10-15", time:"09:00", status:"Completed"},
   {id:810, type:"Meeting", title:"Logistics Operations Audit", party:"Apex Shipping", contact:"Carlos Mendez", duration:"2h", durationMin:120, owner:"Rahul", date:"2026-10-15", time:"13:30", status:"In Progress"},
 
-  // --- Fri Oct 16 (Today - Matched to Live Screenshots 2 & 3) ---
-  {id:811, type:"Call", title:"Morning Freight Operations Sync", party:"BlueSky Freight", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-16", time:"08:30", status:"Completed"},
-  {id:812, type:"Meeting", title:"Q4 Air Charter Capacity Alignment", party:"Pacific Trade", contact:"Anita Roy", duration:"1h 30m", durationMin:90, owner:"Anita", date:"2026-10-16", time:"10:30", status:"In Progress"},
-  {id:813, type:"Call", title:"Key Carrier Alignment Call", party:"Swift Logistics", contact:"Sarah Jenkins", duration:"45m", durationMin:45, owner:"Me", date:"2026-10-16", time:"11:00", status:"In Progress"},
-  {id:814, type:"Task", title:"Verify Customs Clearance", party:"Vance Logistics", contact:"Lisa Ray", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-10-16", time:"11:00", status:"New"},
-  {id:815, type:"Meeting", title:"Enterprise Freight Review", party:"International Freight Corp.", contact:"Elena Rostova", duration:"2h", durationMin:120, owner:"Me", date:"2026-10-16", time:"14:00", status:"New"},
+  // --- Fri Oct 16 (Today - Matched 1:1 to Dev Live Screenshot) ---
+  {id:811, type:"Task", title:"Create Documentation & Workflows", party:"Global Logistics", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-16", time:"00:00", status:"Completed"},
+  {id:812, type:"Email", title:"Final Tariff Sheet Confirmation", party:"Pacific Trade", contact:"Anita Roy", duration:"15m", durationMin:15, owner:"Me", date:"2026-10-16", time:"11:00", status:"In Progress"},
+  {id:813, type:"Meeting", title:"Kick Off Alignment Session", party:"Swift Logistics", contact:"Sarah Jenkins", duration:"45m", durationMin:45, owner:"Me", date:"2026-10-16", time:"11:30", status:"In Progress"},
 
   // --- Phase 2 Target Test Dates ---
-  {id:816, type:"Call", title:"Month-End Pipeline Review", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-28", time:"10:00", status:"New"},
+  {id:816, type:"Call", title:"Month-End Pipeline Review", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Anita", date:"2026-10-28", time:"10:00", status:"New"},
   {id:817, type:"Meeting", title:"Q4 Forward Planning Sync", party:"Pacific Trade", contact:"David Miller", duration:"1h", durationMin:60, owner:"Anita", date:"2026-11-25", time:"11:00", status:"New"},
 
   // =========================================================================
@@ -1067,26 +1133,55 @@ function hoverText(a) {
   return `Activity: ${a.title}\nTime: ${prettyTime(a.time)} - ${prettyTime(endTime(a.time))}\nDuration: ${a.duration || '30 mins'}\nParty: ${a.party}\nContact: ${a.contact || 'N/A'}\nOwner: ${a.owner}`;
 }
 
+const SVG_ICON = {
+  Call: '<svg class="event-svg" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
+  Email: '<svg class="event-svg" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h8"></path><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path><path d="m16 19 2 2 4-4"></path></svg>',
+  Meeting: '<svg class="event-svg" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="3.5"></circle><path d="M14 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 2 18.5V20"></path><path d="M16 11h5m-2.5-2.5l2.5 2.5-2.5 2.5"></path></svg>',
+  Task: '<svg class="event-svg" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="6" height="5.5" rx="1.2"></rect><rect x="14.5" y="3" width="6" height="5.5" rx="1.2"></rect><path d="M8.5 5.75h6"></path><path d="M5.5 8.5v8a1 1 0 0 0 1 1h8"></path><rect x="14.5" y="14.5" width="6" height="5.5" rx="1.2"></rect></svg>'
+};
+
+function formatLiveEventTime(t) {
+  if (!t) return "09:00:00 AM";
+  let parts = t.split(':').map(Number);
+  let h = parts[0] || 0;
+  let m = parts[1] || 0;
+  let s = parts[2] || 0;
+  let ap = h >= 12 ? 'PM' : 'AM';
+  let hh = h % 12 || 12;
+  return `${pad(hh)}:${pad(m)}:${pad(s)} ${ap}`;
+}
+
 function card(a) {
+  let timeStr = formatLiveEventTime(a.time);
   return `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" onclick="eventClick(event,${a.id})">
-    <span class="type-icon">${ICON[a.type] || '📞'}</span>
-    <span class="event-time">${prettyTime(a.time)}</span> - <span class="event-title">${a.title}</span>
+    <span class="type-icon">${SVG_ICON[a.type] || SVG_ICON.Call}</span>
+    <span class="event-text">${timeStr} - ${a.title}</span>
   </div>`;
 }
 
 let MONTH_MAX_VISIBLE = 3;
 
 function month() {
-  document.getElementById("month").style.display = "block";
+  document.getElementById("month").style.display = "flex";
   document.getElementById("time").classList.remove("active");
   
   let y = d.getFullYear(), m = d.getMonth();
   let firstDay = new Date(y, m, 1);
-  let startOffset = (firstDay.getDay() + 6) % 7;
+  let startOffset = (firstDay.getDay() + 6) % 7; // Monday = 0
+  let daysInMonth = new Date(y, m + 1, 0).getDate();
+  let numWeeks = Math.ceil((startOffset + daysInMonth) / 7);
+  let cellCount = numWeeks * 7;
+  
+  let gridEl = document.getElementById("grid");
+  if (gridEl && gridEl.style) {
+    if (gridEl.style.setProperty) gridEl.style.setProperty("--num-weeks", numWeeks);
+    gridEl.style.gridTemplateRows = `repeat(${numWeeks}, 1fr)`;
+  }
+
   let s = new Date(y, m, 1 - startOffset);
   let o = "";
 
-  for (let i = 0; i < 42; i++) {
+  for (let i = 0; i < cellCount; i++) {
     let x = new Date(s);
     x.setDate(s.getDate() + i);
     let dateKey = key(x);
@@ -1115,7 +1210,7 @@ function month() {
       ${more}
     </div>`;
   }
-  document.getElementById("grid").innerHTML = o;
+  gridEl.innerHTML = o;
 }
 
 function dayClick(e, date) {
@@ -1146,8 +1241,8 @@ function more(e, date) {
       ${list.map(a => `
         <div class="card-item" onclick="viewActivity(A.find(x=>x.id==${a.id}))" style="background:#fff;border:1px solid #eaecf0;border-radius:8px;padding:12px;cursor:pointer;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <span class="event ${C[a.type]}" style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:0">
-              <span style="margin-right:4px">${ICON[a.type]}</span> ${a.type}
+            <span class="event ${C[a.type]}" style="display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:0">
+              <span style="display:inline-flex;align-items:center;">${SVG_ICON[a.type] || SVG_ICON.Call}</span> ${a.type}
             </span>
             <span style="font-size:11px;color:#475467;font-weight:600;background:#f8fafc;padding:3px 8px;border-radius:4px;border:1px solid #eaecf0">
               🕙 <b>${prettyTime(a.time)}</b> • ⏱️ ${a.duration || '30m'}
@@ -1244,7 +1339,8 @@ function time() {
         let cardWidthPct = colWidthPct - 2;
         let leftPct = (index * colWidthPct) + 1;
         return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;display:flex;align-items:center;" onclick="eventClick(event,${a.id})">
-          <div class="title-row" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">
+          <div class="title-row" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:flex;align-items:center;gap:4px;">
+            <span style="display:inline-flex;align-items:center;flex:none;">${SVG_ICON[a.type] || SVG_ICON.Call}</span>
             <span style="font-weight:700">${a.type}:</span>
             <span style="font-weight:500">${safeParty}</span>
           </div>
@@ -1257,7 +1353,8 @@ function time() {
         if (index < visibleCardsCount) {
           let leftPct = (index * colWidthPct) + 1;
           return `<div class="tevent ${C[a.type]}" data-tip="${hoverText(a)}" style="top:${top}px;left:${leftPct}%;width:${cardWidthPct}%;height:${cardHeight}px;max-height:${cardHeight}px;display:flex;align-items:center;" onclick="eventClick(event,${a.id})">
-            <div class="title-row" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;">
+            <div class="title-row" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;display:flex;align-items:center;gap:4px;">
+              <span style="display:inline-flex;align-items:center;flex:none;">${SVG_ICON[a.type] || SVG_ICON.Call}</span>
               <span style="font-weight:700">${a.type}:</span>
               <span style="font-weight:500">${safeParty}</span>
             </div>
