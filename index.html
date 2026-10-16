@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Freightoscope Calendar Prototype</title>
+<title>Freightoscope Calendar Prototype - Synced with Live & Phase 2</title>
 <style>
 :root {
   --b: #1e4381;
@@ -16,7 +16,7 @@
   --tx-sec: #475467;
   --mu: #667085;
   --bg: #f8fafc;
-  --ca-bg: #e6f7f5; --ca-bd: #00918e; --ca-tx: #0a4f4b;
+  --ca-bg: #e0f7f6; --ca-bd: #00918e; --ca-tx: #0a4f4b;
   --em-bg: #f0f1ff; --em-bd: #676dff; --em-tx: #25287a;
   --me-bg: #e6f9fc; --me-bd: #1ecbe2; --me-tx: #095963;
   --ta-bg: #e8f4fc; --ta-bd: #0092e4; --ta-tx: #0b4569;
@@ -33,57 +33,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-button, input, select { font-family: inherit; font-size: inherit; }
+button, input, select, textarea { font-family: inherit; font-size: inherit; }
 
 .app { min-height: 100vh; padding: 0; max-width: none; margin: auto; display: flex; }
-.shell { min-width: 0; flex: 1; padding: 0 24px 24px; }
-
-header { height: 64px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacing: -0.3px; }
-
-.btn {
-  border: 1px solid var(--bd);
-  background: #fff;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-weight: 600;
-  color: #344054;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-}
-.btn:hover { background: #f9fafb; border-color: #d0d5dd; color: #1d2939; }
-.btn:active { background: #f2f4f7; }
-.primary { background: var(--b); color: #fff; border-color: var(--b); box-shadow: 0 1px 2px rgba(16, 24, 40, 0.1); }
-.primary:hover { background: var(--b-hover); border-color: var(--b-hover); color: #fff; }
-.today { color: var(--b); background: #f0f7ff; border-color: #b2d7ff; }
-.today:hover { background: #e0f0ff; }
-
-/* Filter Dropdown Button with Chevron Icon */
-.filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 13px;
-}
-.filter-btn .chevron-icon {
-  width: 12px;
-  height: 12px;
-  transition: transform 0.2s ease;
-  color: #667085;
-}
-.filter-btn.open .chevron-icon {
-  transform: rotate(180deg);
-}
+.shell { min-width: 0; flex: 1; padding: 16px 24px 20px; display: flex; flex-direction: column; min-height: 100vh; }
 
 /* Sidebar Component */
-.sidebar { width: 220px; flex: 0 0 220px; background: var(--sidebar); color: #fff; min-height: 100vh; overflow: hidden; }
+.sidebar { width: 220px; flex: 0 0 220px; background: var(--sidebar); color: #fff; min-height: 100vh; overflow: hidden; transition: width 0.2s ease, flex-basis 0.2s ease; }
+.sidebar.collapsed { width: 0; flex-basis: 0; }
 .brand { height: 56px; display: flex; align-items: center; padding: 0 14px; border-bottom: 1px solid rgba(255,255,255,.1); }
 .brand-mark { width: 34px; height: 34px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid #d9e6f5; overflow: hidden; }
 .brand-mark img { width: 100%; height: 100%; object-fit: cover; }
 .brand-name { font-size: 12px; font-weight: 800; letter-spacing: 0.4px; margin-left: 10px; flex: 1; color: #fff; }
-.brand-close { font-size: 22px; font-weight: 300; cursor: pointer; color: rgba(255,255,255,0.7); }
-.brand-close:hover { color: #fff; }
+.brand-close { font-size: 20px; font-weight: 300; cursor: pointer; color: rgba(255,255,255,0.7); padding: 4px; border-radius: 4px; }
+.brand-close:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
 .quick { padding: 10px 10px; background: #234d87; display: flex; gap: 0; }
 .quick input { min-width: 0; width: 100%; height: 30px; border: 0; border-radius: 6px 0 0 6px; padding: 0 10px; font-size: 11px; outline: 0; background: #fff; }
@@ -97,128 +60,474 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 .nav-icon { width: 16px; text-align: center; font-size: 12px; }
 .nav-arrow { margin-left: auto; font-size: 11px; opacity: 0.7; }
 
-@media(max-width:900px){
-  .sidebar { width: 58px; flex-basis: 58px; }
-  .brand { padding: 0 10px; }
-  .brand-name, .brand-close, .quick, .nav-arrow { display: none; }
-  .nav-item { justify-content: center; padding: 0; }
-  .nav-icon { font-size: 16px; }
-  .shell { padding: 0 12px 16px; }
+/* Main Card Container */
+.card {
+  background: #fff;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  overflow: visible;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Card & Toolbar */
-.card { background: #fff; border: 1px solid var(--bd); border-radius: 12px; overflow: visible; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06); }
+/* Unified Main Calendar Toolbar - Exactly Matched to Live Screenshots */
 .toolbar {
-  min-height: 66px;
-  padding: 14px 20px;
+  min-height: 58px;
+  padding: 10px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--bd);
-  position: sticky;
-  top: 0;
-  z-index: 25;
   background: #fff;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  z-index: 25;
 }
-.left, .right { display: flex; align-items: center; gap: 10px; z-index: 2; }
-.nav-btns { display: flex; }
-.nav-btns button { border-radius: 0; }
-.nav-btns button:first-child { border-radius: 8px 0 0 8px; }
-.nav-btns button:last-child { border-left: 0; border-radius: 0 8px 8px 0; }
+.left, .right { display: flex; align-items: center; gap: 8px; }
 
-/* Centered Month / Date Range Label */
-.range {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+.calendar-title {
+  margin: 0 6px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.3px;
+}
+
+.btn {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
+}
+.btn:hover { background: #f9fafb; border-color: #9ca3af; color: #111827; }
+.btn:active { background: #f3f4f6; }
+
+.today-btn {
+  height: 32px;
+  font-weight: 500;
+}
+.today-btn.off {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.nav-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-chevron {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Phase 2: Date Picker Trigger Icon Button */
+.datepicker-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.datepicker-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: #4b5563;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.datepicker-btn:hover, .datepicker-btn.active {
+  background: #eff6ff;
+  border-color: #1e4381;
+  color: #1e4381;
+}
+
+/* Range Date Label (Placed directly on the left, next to controls) */
+.range-label {
   font-size: 16px;
   font-weight: 700;
-  color: #101828;
-  text-align: center;
+  color: #111827;
+  margin-left: 6px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background 0.12s ease;
   letter-spacing: -0.2px;
-  pointer-events: none;
   white-space: nowrap;
 }
+.range-label:hover {
+  background: #f3f4f6;
+  color: #1e4381;
+}
 
-.today.off { opacity: .4; pointer-events: none; }
+/* Google Calendar-Style Date Picker Popover */
+.datepicker-popover {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  width: 280px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+  padding: 14px;
+  z-index: 100;
+  animation: dpFadeIn 0.15s ease-out;
+}
+@keyframes dpFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-.views { display: flex; border: 1px solid var(--bd); border-radius: 8px; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
-.views button { border: 0; border-right: 1px solid var(--bd); background: #fff; padding: 7px 15px; color: #475467; font-weight: 600; cursor: pointer; transition: background 0.12s, color 0.12s; }
-.views button:last-child { border-right: 0; }
-.views button:hover { background: #f9fafb; color: #101828; }
-.views button.active { background: var(--b); color: #fff; font-weight: 700; }
+.dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.dp-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+.dp-title:hover {
+  background: #f3f4f6;
+  color: #1e4381;
+}
+.dp-arrow { font-size: 10px; color: #6b7280; }
 
-.filter { position: relative; }
-.dropdown { display: none; position: absolute; right: 0; top: 44px; width: 220px; background: #fff; border: 1px solid var(--bd); border-radius: 10px; padding: 8px; box-shadow: 0 10px 25px rgba(16,24,40,0.12); z-index: 30; }
+.dp-nav { display: flex; gap: 4px; }
+.dp-nav-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4b5563;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dp-nav-btn:hover { background: #f9fafb; border-color: #cbd5e1; color: #111827; }
+
+.dp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.dp-cell {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  border-radius: 50%;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #1f2937;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  transition: all 0.1s ease;
+}
+.dp-cell:hover {
+  background: #f0f7ff;
+  color: #1e4381;
+}
+.dp-cell.other-month {
+  color: #9ca3af;
+}
+.dp-cell.today-cell {
+  border: 1.5px solid #1e4381;
+  font-weight: 700;
+  color: #1e4381;
+}
+.dp-cell.selected {
+  background: #194381 !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+/* Fast Month / Year Jump View */
+.dp-fast-select {
+  padding: 4px 0;
+}
+.dp-fast-year-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.dp-fast-months-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.dp-fast-month {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #f8fafc;
+}
+.dp-fast-month:hover { background: #e0f2fe; color: #0369a1; }
+.dp-fast-month.selected { background: #194381; color: #fff; }
+
+.dp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+.dp-today-btn {
+  border: 0;
+  background: transparent;
+  color: #1e4381;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+.dp-today-btn:hover { background: #f0f7ff; }
+.dp-info { font-size: 11px; color: #6b7280; font-weight: 500; }
+
+/* Filter Pill Box (Matched to Live: My Activities × ▾) */
+.filter-pill-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 3px 8px;
+  background: #fff;
+  cursor: pointer;
+  height: 32px;
+  transition: all 0.12s ease;
+}
+.filter-pill-box:hover { border-color: #9ca3af; }
+.filter-chip {
+  background: #f3f4f6;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chip-remove {
+  font-weight: 700;
+  font-size: 12px;
+  color: #6b7280;
+  cursor: pointer;
+}
+.chip-remove:hover { color: #111827; }
+.filter-clear-all {
+  font-size: 13px;
+  font-weight: 700;
+  color: #9ca3af;
+  cursor: pointer;
+  margin-left: 2px;
+}
+.filter-clear-all:hover { color: #4b5563; }
+.filter-pill-box .chevron-icon { width: 12px; height: 12px; color: #6b7280; }
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 38px;
+  width: 200px;
+  background: #fff;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  padding: 6px;
+  box-shadow: 0 10px 25px rgba(16,24,40,0.12);
+  z-index: 30;
+}
 .dropdown.show { display: block; }
-.owner { display: flex; align-items: center; gap: 8px; padding: 7px 10px; cursor: pointer; font-size: 12px; border-radius: 6px; color: #344054; }
+.owner { display: flex; align-items: center; gap: 8px; padding: 6px 8px; cursor: pointer; font-size: 12px; border-radius: 4px; color: #344054; }
 .owner:hover { background: #f2f4f7; }
 
-/* Grid Layouts & Centered Weekday Headers */
-.weekhead, .monthgrid { min-width: 900px; display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); }
-.weekhead {
-  background: #f9fafb;
-  border-bottom: 1px solid var(--bd);
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
+/* View Selector Dropdown (Matched to Live: Month ⌵ / Week ⌵ / Day ⌵) */
+.view-dropdown-container {
+  position: relative;
 }
-.weekhead::-webkit-scrollbar {
-  width: 17px;
-  background: transparent;
+.view-dropdown-btn {
+  height: 32px;
+  padding: 0 12px;
+  gap: 6px;
+  font-weight: 500;
 }
-.weekhead::-webkit-scrollbar-thumb {
-  background: transparent;
+.view-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 38px;
+  width: 120px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  padding: 4px 0;
+  z-index: 50;
+}
+.view-dropdown-item {
+  padding: 7px 14px;
+  font-size: 12.5px;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+.view-dropdown-item:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+.view-dropdown-item.active {
+  background: #eff6ff;
+  color: #1e4381;
+  font-weight: 700;
 }
 
+/* Primary Create Activity Button (Matched to Live Navy Button) */
+.create-activity-btn {
+  height: 32px;
+  background: #194381;
+  border-color: #194381;
+  color: #fff;
+  font-weight: 600;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.create-activity-btn:hover {
+  background: #15386d;
+  border-color: #15386d;
+  color: #fff;
+}
+
+/* Month Grid Layout (Matched to Live Screenshot 1) */
+.scroll { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.weekhead, .monthgrid { min-width: 900px; display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); }
+.weekhead {
+  background: #fff;
+  border-bottom: 1px solid var(--bd);
+}
 .weekhead div {
   text-align: center;
   padding: 10px;
   border-right: 1px solid var(--bd);
   font-weight: 700;
   font-size: 11px;
-  color: #475467;
-  background: #f9fafb;
+  color: #6b7280;
+  background: #fff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .weekhead div:last-child { border-right: 0; }
 
-.monthgrid { grid-auto-rows: minmax(120px, 1fr); max-height: 500px; overflow-y: scroll; overscroll-behavior: contain; }
-.day { border-top: 1px solid var(--bd); border-right: 1px solid var(--bd); padding: 7px; cursor: pointer; transition: background 0.12s ease; position: relative; }
-.day:hover { background: #f0f7ff; }
+.monthgrid {
+  grid-auto-rows: minmax(115px, 1fr);
+  flex: 1;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+.day {
+  border-top: 1px solid var(--bd);
+  border-right: 1px solid var(--bd);
+  padding: 8px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  position: relative;
+  background: #fff;
+}
+.day:hover { background: #f9fafb; }
 .day:nth-child(7n) { border-right: 0; }
-.day.muted { background: #fcfcfd; }
-.day.muted .num { color: #98a2b3; }
+.day.muted { background: #fff; }
+.day.muted .num { color: #9ca3af; }
 
-.date { height: 22px; margin-bottom: 4px; display: flex; align-items: center; }
-.num { font-size: 11px; font-weight: 600; color: #475467; }
-.todaynum { background: var(--b); color: #fff; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 1px 3px rgba(30,67,129,0.3); }
+/* Day Focus Feature in Month View */
+.day.focused-cell {
+  background: #f8fafc;
+  box-shadow: inset 0 0 0 2px #194381;
+}
 
-/* Activity Card Styling */
+.date { height: 24px; margin-bottom: 4px; display: flex; align-items: center; }
+.num { font-size: 11.5px; font-weight: 600; color: #111827; }
+/* Today Indicator in Month View (Matched to Live Screenshot 1: Solid Navy Circle) */
+.todaynum {
+  background: #194381;
+  color: #fff;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+/* Activity Event Pill (Matched to Live: 📞 11:15:00 AM - Test) */
 .event {
   position: relative;
   height: 23px;
   margin: 3px 0;
-  padding: 3px 7px 3px 7px;
-  border-radius: 5px;
+  padding: 2px 8px;
+  border-radius: 6px;
   display: flex;
   gap: 5px;
   align-items: center;
   color: var(--tx);
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   overflow: hidden;
   border-left: 3.5px solid transparent;
   transition: transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 .event:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
-.event .type-label { font-weight: 700; flex: none; }
-.event .party-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.event-time { font-weight: 500; font-size: 10.5px; opacity: 0.95; }
+.event-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 
 .call { background: var(--ca-bg); border-left-color: var(--ca-bd); color: var(--ca-tx); }
 .email { background: var(--em-bg); border-left-color: var(--em-bd); color: var(--em-tx); }
@@ -237,37 +546,24 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   align-items: center;
   background: #fce7f3;
   margin-top: 3px;
-  transition: background 0.12s ease;
 }
 .more:hover { background: #fbcfe8; }
 
-/* Week & Day Time Grid Header Alignment */
-.time { display: none; min-width: 900px; }
-.time.active { display: block; }
+/* Week & Day Views (Matched to Live Screenshots 2 & 3) */
+.time { display: none; min-width: 900px; flex: 1; flex-direction: column; }
+.time.active { display: flex; }
 
 .thead {
   display: grid;
-  background: #f9fafb;
+  background: #fff;
   border-bottom: 1px solid var(--bd);
-  overflow-y: scroll;
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
 }
-.thead::-webkit-scrollbar {
-  width: 17px;
-  background: transparent;
-}
-.thead::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-
 .thead div {
   text-align: center;
-  padding: 10px 5px;
+  padding: 8px 4px;
   border-right: 1px solid var(--bd);
   font-size: 11px;
-  font-weight: 700;
-  background: #f9fafb;
+  background: #fff;
   color: #475467;
   display: flex;
   flex-direction: column;
@@ -275,25 +571,64 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   justify-content: center;
 }
 .thead div:last-child { border-right: 0; }
+.thead-dayname { font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 2px; }
+.thead-daydate { font-size: 11px; font-weight: 500; color: #6b7280; }
 
-.tbody { display: grid; height: 500px; position: relative; overflow-y: scroll; overscroll-behavior: contain; }
-.times { background: #f9fafb; border-right: 1px solid var(--bd); height: 960px; }
+/* Today Column Header in Week/Day Views: Blue text matching Live Screenshot 2 */
+.col-today .thead-dayname, .col-today .thead-daydate {
+  color: #1d4ed8 !important;
+  font-weight: 700;
+}
+
+/* Phase 2: Focused Day Column in Week View */
+.col-focused {
+  background: #eff6ff !important;
+  border-bottom: 2.5px solid #194381 !important;
+}
+
+.tbody {
+  display: grid;
+  flex: 1;
+  max-height: calc(100vh - 195px);
+  position: relative;
+  overflow-y: auto;
+}
+.times { background: #fff; border-right: 1px solid var(--bd); height: 960px; }
 .times div {
   height: 40px;
   border-bottom: 1px solid #f2f4f7;
   text-align: left;
   padding: 4px 0 0 10px;
-  color: #667085;
+  color: #6b7280;
   font-size: 10.5px;
   font-weight: 500;
 }
-.col { position: relative; border-right: 1px solid var(--bd); cursor: pointer; min-width: 0; height: 960px; max-height: 960px; overflow: hidden; }
+.col { position: relative; border-right: 1px solid var(--bd); cursor: pointer; min-width: 0; height: 960px; max-height: 960px; }
 .col:last-child { border-right: 0; }
-
-/* Cursor Hover Highlight Rule for Hour Slots (Matching Month View) */
 .hour { height: 40px; border-bottom: 1px solid #f2f4f7; transition: background 0.12s ease; }
 .hour:hover { background: #f0f7ff; }
 
+/* Current Time Red Indicator Line + Dot (Matched to Live Screenshots 2 & 3) */
+.now {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ef4444;
+  z-index: 10;
+  pointer-events: none;
+}
+.now-dot {
+  position: absolute;
+  left: -4px;
+  top: -3.5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+/* Timeline Activity Card */
 .tevent {
   position: absolute;
   padding: 4px 7px;
@@ -312,41 +647,18 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 
 .tevent .title-row { font-weight: 700; font-size: 10.5px; display: flex; align-items: center; gap: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tevent .party { margin-top: 1px; font-weight: 500; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; }
-.activity-icon { font-size: 11px; line-height: 1; }
 
-.now { position: absolute; left: 0; right: 0; height: 2px; background: #f04438; z-index: 5; pointer-events: none; }
-.now::before { content: ''; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: #f04438; box-shadow: 0 0 0 2px rgba(240,68,56,0.2); }
-
-/* Toast Notification System */
-.toast-container {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 200;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Legal Footer (Matched to Live Screenshot: Terms of Service (1.0.17.0)) */
+.legal-footer {
+  text-align: right;
+  padding: 10px 0 0;
+  font-size: 11px;
 }
-.toast {
-  background: #1e293b;
-  color: #fff;
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: toastIn 0.2s ease;
-  max-width: 440px;
-  border-left: 4px solid #f04438;
-  line-height: 1.4;
+.legal-footer a {
+  color: #1e4381;
+  text-decoration: none;
 }
-@keyframes toastIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.legal-footer a:hover { text-decoration: underline; }
 
 /* Hovercard & Drawers */
 .hovercard { position: fixed; display: none; z-index: 100; background: #1e293b; color: #fff; border-radius: 8px; padding: 10px 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); font-size: 11px; line-height: 1.55; white-space: nowrap; pointer-events: none; }
@@ -367,15 +679,11 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   box-shadow: -15px 0 40px rgba(16,24,40,0.18);
   animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-@keyframes slideIn {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-.dhead { height: 64px; border-bottom: 1px solid var(--bd); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; background: #fff; }
+.dhead { height: 60px; border-bottom: 1px solid var(--bd); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; background: #fff; }
 .dhead h2 { font-size: 16px; font-weight: 700; margin: 0; color: #101828; }
-.close { border: 0; background: none; font-size: 24px; color: #667085; cursor: pointer; padding: 4px; border-radius: 4px; }
+.close { border: 0; background: none; font-size: 22px; color: #667085; cursor: pointer; padding: 4px; border-radius: 4px; }
 .close:hover { background: #f2f4f7; color: #101828; }
 
 .dbody { padding: 20px; display: grid; gap: 14px; overflow: auto; }
@@ -387,7 +695,6 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   padding: 9px 12px;
   color: #101828;
   background: #fff;
-  font-family: inherit;
   font-size: 12px;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -411,54 +718,33 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
   align-items: center;
   justify-content: center;
   gap: 5px;
-  transition: all 0.15s ease;
 }
-.type-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
 .type-btn.active {
   border-color: var(--b);
   background: #f0f7ff;
   color: var(--b);
-  box-shadow: 0 0 0 1px var(--b);
 }
-.tag-box {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  background: #fff;
-  min-height: 40px;
-  align-items: center;
-}
-.tag-pill {
-  background: #eaecf0;
-  color: #344054;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.tag-pill span.remove {
-  cursor: pointer;
-  font-size: 13px;
-  color: #667085;
-  font-weight: 700;
-}
-.tag-pill span.remove:hover { color: #f04438; }
 .dfoot { margin-top: auto; border-top: 1px solid var(--bd); padding: 14px 20px; display: flex; justify-content: flex-end; gap: 10px; background: #fafbfc; }
+
+/* Toast */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: #1e293b; color: #fff; padding: 12px 18px; border-radius: 8px; font-size: 12px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; border-left: 4px solid #f04438; }
+
+@media(max-width:900px){
+  .sidebar { width: 58px; flex-basis: 58px; }
+  .brand-name, .brand-close, .quick, .nav-arrow { display: none; }
+  .nav-item { justify-content: center; padding: 0; }
+  .shell { padding: 8px; }
+}
 </style>
 </head>
 <body>
 <div class="app">
-<aside class="sidebar">
+<aside id="sidebar" class="sidebar">
   <div class="brand">
     <div class="brand-mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAC8AAAAuCAIAAAA3GddeAAAIIUlEQVR4nO2YWXBT1xnHz7lXy73SlazFWmzLtiRvCBsZx2YxdojNYkLCFtLS4A6kyXQyYci0SfvQmfaJTjJ0SKZJJ9AOfWna7AQI6xBCWOIEu17AYxYj27IVy5ZkSda+XG333j5QXHOtBYPb5iH/Nx193zm/851zz3e+AwvW7gPfGyH/b4D79ANNZnEexVkiwgvyRVKxAAAAAAMAdHpD075IIBz739HIxILHH9M1GIowlAn4Q3a7NxCMQAjFYkFrTYVUJo4m6e7btst9o1EyMa+e4by+KVme4KXtKxoqlOcv9F7rN+t1BatWLjZWF6uVUgYAu8N3Z2iis/vOmMXZtHLRU08uP9Npfu90XygSX2AalVzUUq+r18vtE85Ukn76qeW1NaUAwLTGNE33D4yePX8Nx7kKdf61UU9Hv8XtiywADYLAukVF6+u1VDBIEFhz4+KqSg2C5N7+DMMMmqxd3aZwhOTmSc51j16/Y8vukmPfQAhXLiltWVIwZbX9aGvTokoNhvFycsz4VhtK9boCk8n6/seXtqwok+cJLvaYaZrJ5JJjiup80Z7NtTbz5C/3bFlq1D84yoxwjFe3tHz/718YM1k3LdcaKwuzGGejMeiVr7/UerXr9t49mxX5efPlmC0+n7v35U3jY45d6xZrVBm7ykijUeXtXFvdcaW/fUeLpij/UVDuqlij2LRxmdlkefW5xnyJcB40KIpsaKy4dX1od/ua8rJssZ2Xqio1LauN33zV+/zm+nnQGHRKJY40LNUbqkoWCgUAACF8fFXNY3X6mNdXWap4IBoUQZboFShNtaw2LiDKjLZtaopHow2LCjkoe/Q0XziPi9ZXqphYPF8ufughg4mUNUx648kEzXAhJLioCucrcB4fRWRSorZGOzzhVcgIhzuYg8agUyQjpF6rxjBePJE8frLTbp8OhEiaYiACxCKBWimtrCiqXlxCCPG57k4yfn5iesAb9sSSMYqmGAYBgIciEh6nTSNr0yj4KFJarAxF4vI8PDdN67LycCSs06oAAFwORyYVHTp82mb3sMwwnG+s0bb/+IktTzfCexnC5AvvH7C4yCTLWAzAc2XqZYo8HooAAEpLstAM3LUa98pbZmYNmdZ32wpfdRYVyAACCwLa1dZqi/DffOXq1azCVombMYmS8p3eou8d08PDpXTvXbmxrGKbotwbGYxQ9YwMBkPA5zSrJzvICKZ87004IsUg0pi+SsoZOQ0PwoFohhffmCyGsNpQceP3Fv/7ti+Mnr/p84dnGEELzqGP/W0f6+s2FG5ZBgAAAGABEXFSF8WQY94kCabNayr9/w+I4nxBiep0yB01ZsXx41C6ViVjtSoXktb3bSosVBw+fcbn8rH9jscS5871l301t+/UOO4dDcFAeB4kmKJKi+9wBkz+iwnlNammBgD/jIhBgEhGf1Q+bhsB5Pl+IELFpAABCIda+oxXH+G8c+MQfYF8PUikq6AlIojG7mPh6yj87M2IofLGqU..." alt="Freightoscope"></div>
     <div class="brand-name">FREIGHTOSCOPE</div>
-    <div class="brand-close">×</div>
+    <div class="brand-close" onclick="toggleSidebar()" title="Collapse Sidebar">‹</div>
   </div>
   <div class="quick">
     <input placeholder="Quick Search"><select><option>SHPT #</option></select><button class="search-btn">⌕</button>
@@ -467,67 +753,116 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
     <a class="nav-item" href="#"><span class="nav-icon">◉</span>Dashboard<span class="nav-arrow">›</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">◉</span>Admin<span class="nav-arrow">›</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">▦</span>Masters<span class="nav-arrow">›</span></a>
-    <a class="nav-item" href="#"><span class="nav-icon">◈</span>Member - Member Data Share<span class="nav-arrow">›</span></a>
+    <a class="nav-item" href="#"><span class="nav-icon">◈</span>Member Share<span class="nav-arrow">›</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">⌁</span>Sales<span class="nav-arrow">›</span></a>
     <a class="nav-item" href="#"><span class="nav-icon">♧</span>Leads</a>
     <a class="nav-item" href="#"><span class="nav-icon">◎</span>Opportunities</a>
     <a class="nav-item" href="#"><span class="nav-icon">⌁</span>Activities</a>
-    <a class="nav-item" href="#"><span class="nav-icon">▣</span>Contacts</a>
     <a class="nav-item active" href="#"><span class="nav-icon">▦</span>Calendar</a>
     <a class="nav-item" href="#"><span class="nav-icon">⚙</span>Settings</a>
-    <a class="nav-item" href="#"><span class="nav-icon">▰</span>Pricing<span class="nav-arrow">›</span></a>
-    <a class="nav-item" href="#"><span class="nav-icon">◉</span>Operations<span class="nav-arrow">›</span></a>
-    <a class="nav-item" href="#"><span class="nav-icon">▰</span>Report<span class="nav-arrow">⌄</span></a>
   </nav>
 </aside>
 
 <div class="shell">
-  <header>
-    <div>
-      <h1>Calendar</h1>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <div id="weekLayoutToggle" style="display:none;background:#f8fafc;padding:2px;border-radius:6px;border:1px solid #e2e8f0;align-items:center;gap:2px;">
-        <button id="btnVert" style="padding:3px 8px;font-size:11px;font-weight:600;border:0;background:#fff;color:#0f172a;border-radius:4px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.05);transition:all 0.12s ease;" onclick="setWeekLayout('vertical')">📊 Vertical</button>
-        <button id="btnHori" style="padding:3px 8px;font-size:11px;font-weight:500;border:0;background:transparent;color:#64748b;border-radius:4px;cursor:pointer;transition:all 0.12s ease;" onclick="setWeekLayout('horizontal')">☰ Horizontal</button>
-      </div>
-      <button class="btn primary" onclick="create()">+ Create Activity</button>
-    </div>
-  </header>
-
   <section class="card">
+    <!-- Unified Main Calendar Toolbar (1:1 with Live Screenshots) -->
     <div class="toolbar">
       <div class="left">
-        <button id="today" class="btn today" onclick="today()">Today</button>
+        <h1 class="calendar-title">Calendar</h1>
+        <button id="today" class="btn today-btn" onclick="today()">Today</button>
         <div class="nav-btns">
-          <button class="btn" onclick="move(-1)">‹</button>
-          <button class="btn" onclick="move(1)">›</button>
+          <button class="btn nav-chevron" onclick="move(-1)" title="Previous">‹</button>
+          <button class="btn nav-chevron" onclick="move(1)" title="Next">›</button>
         </div>
+
+        <!-- PHASE 2: Date Picker Popover Trigger Button -->
+        <div class="datepicker-wrapper">
+          <button id="datePickerBtn" class="btn datepicker-btn" onclick="toggleDatePicker(event)" title="Focus a Day / Jump to Date (Google Calendar Date Picker)">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <circle cx="12" cy="15" r="1.5" fill="currentColor"></circle>
+            </svg>
+          </button>
+
+          <!-- Google Calendar Style Date Picker Popover -->
+          <div id="datePickerPopover" class="datepicker-popover" style="display:none;" onclick="event.stopPropagation()">
+            <div class="dp-header">
+              <div class="dp-title" onclick="toggleFastMonthYear(event)">
+                <span id="dpMonthYearLabel">October 2026</span>
+                <span class="dp-arrow">▾</span>
+              </div>
+              <div class="dp-nav">
+                <button type="button" class="dp-nav-btn" onclick="dpNavMonth(-1)">‹</button>
+                <button type="button" class="dp-nav-btn" onclick="dpNavMonth(1)">›</button>
+              </div>
+            </div>
+
+            <!-- Weekday Headers (Mon to Sun) -->
+            <div class="dp-weekdays">
+              <div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div>
+            </div>
+
+            <!-- Date Grid -->
+            <div id="dpGrid" class="dp-grid"></div>
+
+            <!-- Fast Month / Year Jump View -->
+            <div id="dpFastSelect" class="dp-fast-select" style="display:none;"></div>
+
+            <!-- Popover Footer -->
+            <div class="dp-footer">
+              <button type="button" class="dp-today-btn" onclick="dpSelectToday()">Today</button>
+              <div id="dpSelectedInfo" class="dp-info">Oct 16, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Range Label (Right after navigation controls on the left) -->
+        <div id="range" class="range-label" onclick="toggleDatePicker(event)" title="Click to open Date Picker">October 2026</div>
       </div>
       
-      <!-- Perfectly Centered Date Range Label -->
-      <div id="range" class="range"></div>
-      
       <div class="right">
-        <div class="filter">
-          <button id="filterBtn" class="btn filter-btn" onclick="ownersMenu()">
-            <span>All Owners</span>
+        <!-- Week Layout Toggle (Discreet) -->
+        <div id="weekLayoutToggle" style="display:none;background:#f8fafc;padding:2px;border-radius:6px;border:1px solid #e2e8f0;align-items:center;gap:2px;">
+          <button id="btnVert" style="padding:3px 8px;font-size:11px;font-weight:600;border:0;background:#fff;color:#0f172a;border-radius:4px;cursor:pointer;" onclick="setWeekLayout('vertical')">📊 Vertical</button>
+          <button id="btnHori" style="padding:3px 8px;font-size:11px;font-weight:500;border:0;background:transparent;color:#64748b;border-radius:4px;cursor:pointer;" onclick="setWeekLayout('horizontal')">☰ Horizontal</button>
+        </div>
+
+        <!-- Filter Pill (Matched to Live: My Activities × ▾) -->
+        <div class="filter" style="position:relative;">
+          <div id="filterPillBtn" class="filter-pill-box" onclick="ownersMenu(event)">
+            <span class="filter-chip"><span id="filterPillLabel">My Activities</span> <span class="chip-remove" onclick="clearFilterChip(event)">×</span></span>
+            <span class="filter-clear-all" onclick="resetAllOwners(event)" title="Clear filter">×</span>
             <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
+          </div>
           <div id="owners" class="dropdown"></div>
         </div>
-        <div class="views">
-          <button data-v="month" onclick="setView('month')">Month</button>
-          <button data-v="week" onclick="setView('week')">Week</button>
-          <button data-v="day" onclick="setView('day')">Day</button>
+
+        <!-- View Switcher Dropdown (Matched to Live: Month ⌵ / Week ⌵ / Day ⌵) -->
+        <div class="view-dropdown-container">
+          <button id="viewDropdownBtn" class="btn view-dropdown-btn" onclick="toggleViewDropdown(event)">
+            <span id="viewBtnLabel">Month</span>
+            <svg class="chevron-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div id="viewDropdownMenu" class="view-dropdown-menu" style="display:none;" onclick="event.stopPropagation()">
+            <div class="view-dropdown-item active" data-v="month" onclick="selectViewMode('month')">Month</div>
+            <div class="view-dropdown-item" data-v="week" onclick="selectViewMode('week')">Week</div>
+            <div class="view-dropdown-item" data-v="day" onclick="selectViewMode('day')">Day</div>
+          </div>
         </div>
+
+        <!-- Primary Create Activity Button (Navy Blue) -->
+        <button class="btn primary create-activity-btn" onclick="create()">+ Create Activity</button>
       </div>
     </div>
 
+    <!-- Calendar Grids Scroll Container -->
     <div class="scroll">
       <div id="month">
         <div class="weekhead">
-          <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+          <div>MON</div><div>TUE</div><div>WED</div><div>THU</div><div>FRI</div><div>SAT</div><div>SUN</div>
         </div>
         <div id="grid" class="monthgrid"></div>
       </div>
@@ -537,6 +872,11 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
       </div>
     </div>
   </section>
+
+  <!-- Legal Footer (Matched to Live: Terms of Service (1.0.17.0)) -->
+  <footer class="legal-footer">
+    <a href="#" onclick="event.preventDefault()">Terms of Service (1.0.17.0)</a>
+  </footer>
 </div>
 </div>
 
@@ -546,80 +886,63 @@ h1 { margin: 0; font-size: 22px; font-weight: 700; color: #101828; letter-spacin
 <script>
 const A = [
   // =========================================================================
-  // BENCHMARK TEST SUITE: CORE CASES & EDGE CASES
+  // OCTOBER 2026 SUITE (SYNCED DIRECTLY WITH LIVE SCREENSHOTS)
   // =========================================================================
 
-  // --- CASE 1, 2, 8 & 9: Mon Aug 24 ---
-  // - Dynamic Durations (2h = 80px, 1.5h = 60px, 1h = 40px, 30m = 36px, 15m = 36px)
-  // - Multi-Hour Interval Collision (09:00-11:00 2h meeting overlaps at 10:00 AM with 1h Call)
-  // - Lengthy Title & Enterprise Party Name + Multiple Contacts
-  {id:101, type:"Meeting", title:"Urgent Spot Rate Negotiation & Air Charter Capacity Alignment for Q4 Peak Season", party:"International Freight & Multimodal Global Logistics Services Corp.", contact:"Sarah Jenkins (VP Sales), Robert Vance (Logistics Mgr), Elena Rostova (Supply Chain Lead)", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-24", time:"09:00", opportunity:"Q4 Peak Air Charter", direction:"Outbound", purpose:"Rate Negotiation", outcome:"Connected", status:"Completed", priority:"High", notes:"2-Hour executive strategy meeting demonstrating lengthy text, multi-contacts, and multi-hour interval collision."},
-  {id:102, type:"Call", title:"Mid-Morning Carrier Space Sync", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"1h", durationMin:60, owner:"Me", date:"2026-08-24", time:"10:00", opportunity:"Annual Air Charter", status:"Completed"},
-  {id:103, type:"Meeting", title:"Strategy Alignment Session", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-24", time:"11:30", opportunity:"Q3 Freight Deal", status:"Completed"},
-  {id:104, type:"Call", title:"Rate Follow-up Call", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-24", time:"13:30", status:"Completed"},
-  {id:105, type:"Email", title:"Send Tariff Confirmation", party:"BlueSky Freight", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-24", time:"14:30", status:"Completed"},
+  // --- Thu Oct 1 (Matched 1:1 to Live Screenshot 1) ---
+  {id:801, type:"Call", title:"Test", party:"Atlas Cargo", contact:"Anita Roy", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-01", time:"11:15", status:"New"},
 
-  // --- CASE 3 & 5: Tue Aug 25 (Today) ---
-  // - 09:00 AM: 2 Overlapping Meetings (50% / 50% split)
-  // - 10:30 AM: 3 Overlapping Calls (3-way split in Day View)
-  // - 11:00 AM: 5 Overlapping Activities (Day View MAX=4 threshold -> 3 cards + +2 more pill)
-  // - 14:00 PM: Multi-Hour Overlapping Meeting (2h meeting overlaps 1h call at 15:00 PM)
+  // --- Mon Oct 12 ---
+  {id:802, type:"Meeting", title:"Carrier Space & Q4 Air Charter Sync", party:"Pacific Trade", contact:"Sarah Jenkins", duration:"1h 30m", durationMin:90, owner:"Anita", date:"2026-10-12", time:"09:30", status:"Completed"},
+  {id:803, type:"Call", title:"Rate Followup", party:"Swift Logistics", contact:"Robert Vance", duration:"45m", durationMin:45, owner:"Me", date:"2026-10-12", time:"11:00", status:"Completed"},
+
+  // --- Tue Oct 13 ---
+  {id:804, type:"Task", title:"Customs Document Verification", party:"BlueStar Line", contact:"Lisa Ray", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-10-13", time:"10:00", status:"Completed"},
+  {id:805, type:"Call", title:"Spot Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-13", time:"14:00", status:"Completed"},
+
+  // --- Wed Oct 14 ---
+  {id:806, type:"Meeting", title:"Contract Strategy Review", party:"Global Cargo Ltd.", contact:"Anita Roy", duration:"1h", durationMin:60, owner:"Anita", date:"2026-10-14", time:"10:30", status:"Completed"},
+  {id:807, type:"Call", title:"Air Freight Booking Touchpoint", party:"Atlas Cargo", contact:"Elena Rostova", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-14", time:"11:00", status:"Completed"},
+  {id:808, type:"Email", title:"Send Revised Tariff Sheet", party:"Oceanic Trans", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Anita", date:"2026-10-14", time:"11:00", status:"Completed"},
+
+  // --- Thu Oct 15 ---
+  {id:809, type:"Call", title:"Carrier Space Booking", party:"Swift Freight", contact:"David Miller", duration:"1h", durationMin:60, owner:"Me", date:"2026-10-15", time:"09:00", status:"Completed"},
+  {id:810, type:"Meeting", title:"Logistics Operations Audit", party:"Apex Shipping", contact:"Carlos Mendez", duration:"2h", durationMin:120, owner:"Rahul", date:"2026-10-15", time:"13:30", status:"In Progress"},
+
+  // --- Fri Oct 16 (Today - Matched to Live Screenshots 2 & 3) ---
+  {id:811, type:"Call", title:"Morning Freight Operations Sync", party:"BlueSky Freight", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-16", time:"08:30", status:"Completed"},
+  {id:812, type:"Meeting", title:"Q4 Air Charter Capacity Alignment", party:"Pacific Trade", contact:"Anita Roy", duration:"1h 30m", durationMin:90, owner:"Anita", date:"2026-10-16", time:"10:30", status:"In Progress"},
+  {id:813, type:"Call", title:"Key Carrier Alignment Call", party:"Swift Logistics", contact:"Sarah Jenkins", duration:"45m", durationMin:45, owner:"Me", date:"2026-10-16", time:"11:00", status:"In Progress"},
+  {id:814, type:"Task", title:"Verify Customs Clearance", party:"Vance Logistics", contact:"Lisa Ray", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-10-16", time:"11:00", status:"New"},
+  {id:815, type:"Meeting", title:"Enterprise Freight Review", party:"International Freight Corp.", contact:"Elena Rostova", duration:"2h", durationMin:120, owner:"Me", date:"2026-10-16", time:"14:00", status:"New"},
+
+  // --- Phase 2 Target Test Dates ---
+  {id:816, type:"Call", title:"Month-End Pipeline Review", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-10-28", time:"10:00", status:"New"},
+  {id:817, type:"Meeting", title:"Q4 Forward Planning Sync", party:"Pacific Trade", contact:"David Miller", duration:"1h", durationMin:60, owner:"Anita", date:"2026-11-25", time:"11:00", status:"New"},
+
+  // =========================================================================
+  // AUGUST 2026 HISTORICAL BENCHMARK SUITE
+  // =========================================================================
+  {id:101, type:"Meeting", title:"Urgent Spot Rate Negotiation & Air Charter Capacity Alignment for Q4 Peak Season", party:"International Freight Corp.", contact:"Sarah Jenkins", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-24", time:"09:00", status:"Completed"},
+  {id:102, type:"Call", title:"Mid-Morning Carrier Space Sync", party:"Swift Logistics", contact:"Anita Roy", duration:"1h", durationMin:60, owner:"Me", date:"2026-08-24", time:"10:00", status:"Completed"},
+  {id:103, type:"Meeting", title:"Strategy Alignment Session", party:"Pacific Trade", contact:"David Miller", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-24", time:"11:30", status:"Completed"},
   {id:201, type:"Call", title:"Morning Executive Space Sync", party:"BlueStar Line", contact:"Elena Rostova", duration:"1h", durationMin:60, owner:"Anita", date:"2026-08-25", time:"09:00", status:"Completed"},
-  {id:202, type:"Call", title:"Key Carrier Alignment Call", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-25", time:"09:00", status:"Completed"},
-
-  {id:203, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"1h", durationMin:60, owner:"Me", date:"2026-08-25", time:"10:30", opportunity:"Ocean Import Contract", status:"In Progress"},
-  {id:204, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-25", time:"10:30", status:"In Progress"},
-  {id:205, type:"Task", title:"Customs Document Verification", party:"Vance Logistics", contact:"Lisa Ray (Customs Agent)", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-25", time:"10:30", status:"New"},
-
-  {id:206, type:"Call", title:"Rate Negotiation Call", party:"Atlas Cargo", contact:"Sarah Jenkins (VP Sales)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"In Progress"},
-  {id:207, type:"Call", title:"Carrier Capacity Sync", party:"Swift Logistics", contact:"Anita Roy (Branch Lead)", duration:"30m", durationMin:30, owner:"Anita", date:"2026-08-25", time:"11:00", status:"In Progress"},
-  {id:208, type:"Meeting", title:"Contract Draft Review", party:"Pacific Trade", contact:"David Miller (Operations Head)", duration:"45m", durationMin:45, owner:"Rahul", date:"2026-08-25", time:"11:00", status:"New"},
-  {id:209, type:"Task", title:"Documentation Check", party:"Vance Logistics", contact:"Lisa Ray (Customs Agent)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"New"},
-  {id:210, type:"Email", title:"Send Tariff Update", party:"Oceanic Trans", contact:"Robert Vance (Logistics Mgr)", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-25", time:"11:00", status:"Completed"},
-
-  {id:211, type:"Meeting", title:"Q3 Enterprise Freight Contract Review", party:"International Freight & Multimodal Global Logistics Services Corp.", contact:"Sarah Jenkins (VP Sales), Robert Vance", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-25", time:"14:00", status:"New", priority:"High", notes:"2-Hour enterprise review meeting."},
-  {id:212, type:"Call", title:"Operations Alignment Touchpoint", party:"Pacific Exports", contact:"Michael Chang", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-25", time:"15:00", status:"New"},
-
-  // --- CASE 4: Wed Aug 26 ---
-  // - 11:00 AM: 4 Overlapping Activities (Week View MAX=2 threshold -> Card 1 + +3 more pill)
-  {id:301, type:"Meeting", title:"Q3 Freight Contract Review", party:"Horizon Logistics", contact:"Alex Wong (Director)", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-26", time:"11:00", status:"In Progress"},
-  {id:302, type:"Call", title:"Air Freight Booking Followup", party:"Vance Logistics", contact:"Robert Vance (Logistics Mgr)", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-26", time:"11:00", status:"In Progress"},
-  {id:303, type:"Email", title:"Send Revised Tariff Sheet", party:"Oceanic Trans", contact:"Lisa Ray (Customs Agent)", duration:"15m", durationMin:15, owner:"Anita", date:"2026-08-26", time:"11:00", status:"Completed"},
-  {id:304, type:"Task", title:"Verify Customs Import Bond", party:"Swift Freight", contact:"David Miller (Operations Head)", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-26", time:"11:00", status:"New"},
-
-  // --- EDGE CASE 10 & 11: Thu Aug 27 ---
-  // - 09:00 AM: Micro-duration event (5m call) $\rightarrow$ Clamped at 36px height floor
-  // - 23:30 PM: Late night spanning event (23:30 - 01:30 2h meeting) $\rightarrow$ Clamped at midnight (23:59)
-  {id:401, type:"Call", title:"Quick Gate Status Ping", party:"FastTrack Logistics", contact:"Mark Spencer", duration:"5m", durationMin:5, owner:"Me", date:"2026-08-27", time:"09:00", status:"Completed", notes:"5-minute micro duration event demonstrating 36px height floor."},
-  {id:402, type:"Task", title:"Send Booking Confirmation", party:"BlueStar Line", contact:"Elena Rostova", duration:"1h", durationMin:60, owner:"Anita", date:"2026-08-27", time:"10:00", status:"Completed"},
-  {id:403, type:"Meeting", title:"Logistics Operations Audit", party:"Apex Shipping", contact:"Carlos Mendez", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-27", time:"14:00", status:"In Progress"},
-  {id:404, type:"Meeting", title:"Late Night Overseas Alignment Call", party:"Asia-Pacific Shipping Corp.", contact:"Kenji Sato", duration:"2h", durationMin:120, owner:"Me", date:"2026-08-27", time:"23:30", status:"New", notes:"Late night event starting at 23:30 demonstrating midnight boundary clamping."},
-
-  // --- EDGE CASE 12: Fri Aug 28 ---
-  // - Missing / Null Payload Fields (null party & title) $\rightarrow$ Fallback text rendered
-  {id:501, type:"Call", title:"", party:"", contact:"Unknown Contact", duration:"30m", durationMin:30, owner:"System", date:"2026-08-28", time:"10:00", status:"New", notes:"Payload with null party and null title demonstrating defensive fallback text."},
-  {id:502, type:"Meeting", title:"Weekly Sales Team Huddle", party:"Internal Sales", contact:"Sales Team", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-28", time:"11:30", status:"Completed"},
-
-  // --- MONTH VIEW CAPACITY TEST DATES ---
-  // 2026-08-12: 3 activities (Tests MAX=2 cell capacity -> 1 card + +2 more)
-  {id:601, type:"Call", title:"Initial Inquiry Followup", party:"Vance Logistics", contact:"Robert Vance", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-12", time:"09:30", status:"In Progress"},
-  {id:602, type:"Email", title:"Quote Submission", party:"Vance Logistics", contact:"Robert Vance", duration:"15m", durationMin:15, owner:"Me", date:"2026-08-12", time:"11:00", status:"Completed"},
-  {id:603, type:"Task", title:"Check Customs Clearance", party:"Vance Logistics", contact:"Lisa Ray", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-12", time:"14:00", status:"New"},
-
-  // 2026-08-18: 5 activities (Tests MAX=4 cell capacity -> 3 cards + +2 more)
-  {id:701, type:"Call", title:"Client Touchpoint", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"09:00", status:"Completed"},
-  {id:702, type:"Meeting", title:"Quarterly Contract Review", party:"Apex Shipping", contact:"Carlos Mendez", duration:"1h 30m", durationMin:90, owner:"Rahul", date:"2026-08-18", time:"10:30", status:"Completed"},
-  {id:703, type:"Email", title:"Send Revision 2 Quote", party:"Apex Shipping", contact:"Carlos Mendez", duration:"15m", durationMin:15, owner:"Rahul", date:"2026-08-18", time:"13:00", status:"Completed"},
-  {id:704, type:"Task", title:"Update CRM Records", party:"Apex Shipping", contact:"Carlos Mendez", duration:"30m", durationMin:30, owner:"Rahul", date:"2026-08-18", time:"15:00", status:"Completed"},
-  {id:705, type:"Call", title:"Closing Confirmation Call", party:"Apex Shipping", contact:"Carlos Mendez", duration:"20m", durationMin:20, owner:"Rahul", date:"2026-08-18", time:"16:30", status:"Completed"}
+  {id:202, type:"Call", title:"Key Carrier Alignment Call", party:"Swift Logistics", contact:"Anita Roy", duration:"45m", durationMin:45, owner:"Me", date:"2026-08-25", time:"09:00", status:"Completed"},
+  {id:203, type:"Call", title:"Urgent Rate Discussion", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"1h", durationMin:60, owner:"Me", date:"2026-08-25", time:"10:30", status:"In Progress"},
+  {id:204, type:"Call", title:"Rate Sync with Anita", party:"Swift Logistics", contact:"Anita Roy", duration:"2h", durationMin:120, owner:"Anita", date:"2026-08-25", time:"10:30", status:"In Progress"},
+  {id:205, type:"Task", title:"Customs Document Verification", party:"Vance Logistics", contact:"Lisa Ray", duration:"1h", durationMin:60, owner:"Rahul", date:"2026-08-25", time:"10:30", status:"New"},
+  {id:206, type:"Call", title:"Rate Negotiation Call", party:"Atlas Cargo", contact:"Sarah Jenkins", duration:"30m", durationMin:30, owner:"Me", date:"2026-08-25", time:"11:00", status:"In Progress"}
 ];
 
 const C = {Call:"call", Email:"email", Meeting:"meeting", Task:"task"};
-const ICON = {Call:'☎', Email:'✉', Meeting:'👥', Task:'✓'};
+const ICON = {Call:'📞', Email:'✉', Meeting:'👥', Task:'✓'};
 
+// Baseline: Today is Friday, October 16, 2026 (Matched 1:1 with live screenshots)
+const TODAY_DATE = new Date(2026, 9, 16);
+let d = new Date(TODAY_DATE);
+let focusedDateStr = "2026-10-16"; // Currently focused date
 let v = localStorage.getItem("fo-cal-view") || "month";
-let d = new Date(2026, 7, 25);
-let sel = new Set();
+let sel = new Set(["Me"]); // Default: "My Activities" (owner: "Me")
 
 const key = x => {
   let y = x.getFullYear();
@@ -658,19 +981,25 @@ function setView(x) {
   render();
 }
 
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("collapsed");
+}
+
 function today() {
-  d = new Date(2026, 7, 25);
+  d = new Date(TODAY_DATE);
+  focusedDateStr = key(d);
   render();
 }
 
 function move(n) {
   if (v == "month") d.setMonth(d.getMonth() + n);
   else d.setDate(d.getDate() + n * (v == "week" ? 7 : 1));
+  focusedDateStr = key(d);
   render();
 }
 
 function current() {
-  let n = new Date(2026, 7, 25);
+  let n = TODAY_DATE;
   if (v == "day") return key(d) == key(n);
   if (v == "month") return d.getMonth() == n.getMonth() && d.getFullYear() == n.getFullYear();
   return key(week(d)) == key(week(n));
@@ -694,33 +1023,33 @@ function setWeekLayout(mode) {
 }
 
 function render() {
+  // Update Date Range Label
   document.getElementById("range").textContent = label();
-  document.getElementById("today").classList.toggle("off", current());
-  document.querySelectorAll(".views button").forEach(b => b.classList.toggle("active", b.dataset.v == v));
   
+  // Today button active state
+  document.getElementById("today").classList.toggle("off", current());
+  
+  // Update View Dropdown text
+  let viewName = v == "month" ? "Month" : (v == "week" ? "Week" : "Day");
+  document.getElementById("viewBtnLabel").textContent = viewName;
+  document.querySelectorAll(".view-dropdown-item").forEach(item => {
+    item.classList.toggle("active", item.dataset.v == v);
+  });
+  
+  // Layout toggle visibility
   let toggle = document.getElementById("weekLayoutToggle");
   if (toggle) {
     toggle.style.display = (v == "week") ? "inline-flex" : "none";
-    let isVert = (weekLayoutMode == "vertical");
-    let btnV = document.getElementById("btnVert");
-    let btnH = document.getElementById("btnHori");
-    btnV.style.background = isVert ? "#fff" : "transparent";
-    btnV.style.color = isVert ? "#0f172a" : "#64748b";
-    btnV.style.fontWeight = isVert ? "600" : "500";
-    btnV.style.boxShadow = isVert ? "0 1px 2px rgba(0,0,0,0.05)" : "none";
-    
-    btnH.style.background = !isVert ? "#fff" : "transparent";
-    btnH.style.color = !isVert ? "#0f172a" : "#64748b";
-    btnH.style.fontWeight = !isVert ? "600" : "500";
-    btnH.style.boxShadow = !isVert ? "0 1px 2px rgba(0,0,0,0.05)" : "none";
   }
 
+  // Update Filter Pill Label
   let allOwners = [...new Set(A.map(a => a.owner))];
-  let filterSpan = document.querySelector("#filterBtn span");
-  if (filterSpan) {
-    if (!sel.size || sel.size == allOwners.length) filterSpan.textContent = "All Owners";
-    else if (sel.size == 1) filterSpan.textContent = Array.from(sel)[0];
-    else filterSpan.textContent = `${sel.size} Owners Selected`;
+  let filterLabel = document.getElementById("filterPillLabel");
+  if (filterLabel) {
+    if (!sel.size || sel.size == allOwners.length) filterLabel.textContent = "All Owners";
+    else if (sel.size == 1 && sel.has("Me")) filterLabel.textContent = "My Activities";
+    else if (sel.size == 1) filterLabel.textContent = Array.from(sel)[0];
+    else filterLabel.textContent = `${sel.size} Owners`;
   }
 
   if (v == "month") {
@@ -746,17 +1075,17 @@ function prettyTime(t) {
 }
 
 function hoverText(a) {
-  return `Activity: ${a.title}\nDuration: ${a.duration || '30 mins'}\nParty: ${a.party}\nContact: ${a.contact || 'N/A'}\nOwner: ${a.owner}`;
+  return `Activity: ${a.title}\nTime: ${prettyTime(a.time)} - ${prettyTime(endTime(a.time))}\nDuration: ${a.duration || '30 mins'}\nParty: ${a.party}\nContact: ${a.contact || 'N/A'}\nOwner: ${a.owner}`;
 }
 
 function card(a) {
   return `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" onclick="eventClick(event,${a.id})">
-    <span class="type-label">${a.type}:</span>
-    <span class="party-name">${a.party}</span>
+    <span class="type-icon">${ICON[a.type] || '📞'}</span>
+    <span class="event-time">${prettyTime(a.time)}</span> - <span class="event-title">${a.title}</span>
   </div>`;
 }
 
-let MONTH_MAX_VISIBLE = 3; // Dynamic cell capacity threshold (supports 2, 3, or 4)
+let MONTH_MAX_VISIBLE = 3;
 
 function month() {
   document.getElementById("month").style.display = "block";
@@ -771,7 +1100,8 @@ function month() {
   for (let i = 0; i < 42; i++) {
     let x = new Date(s);
     x.setDate(s.getDate() + i);
-    let ev = visible().filter(a => a.date == key(x));
+    let dateKey = key(x);
+    let ev = visible().filter(a => a.date == dateKey);
     let displayEvents = [];
     let more = "";
     
@@ -781,11 +1111,17 @@ function month() {
       let visibleCount = MONTH_MAX_VISIBLE - 1;
       displayEvents = ev.slice(0, visibleCount);
       let overflowCount = ev.length - visibleCount;
-      more = `<div class="more" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
+      more = `<div class="more" onclick="more(event,'${dateKey}')">+${overflowCount} more</div>`;
     }
     
-    o += `<div class="day ${x.getMonth() != m ? "muted" : ""}" onclick="dayClick(event,'${key(x)}')">
-      <div class="date"><span class="num ${key(x) == "2026-08-25" ? "todaynum" : ""}">${x.getDate()}</span></div>
+    let isToday = (dateKey == key(TODAY_DATE));
+    let isFocused = (dateKey == focusedDateStr && !isToday);
+    let isMuted = (x.getMonth() != m);
+
+    o += `<div class="day ${isMuted ? "muted" : ""} ${isFocused ? "focused-cell" : ""}" onclick="dayClick(event,'${dateKey}')">
+      <div class="date">
+        <span class="num ${isToday ? "todaynum" : ""}">${x.getDate()}</span>
+      </div>
       ${displayEvents.map(card).join("")}
       ${more}
     </div>`;
@@ -795,6 +1131,7 @@ function month() {
 
 function dayClick(e, date) {
   if (e.target.closest(".event, .more")) return;
+  focusedDateStr = date;
   create(date);
 }
 
@@ -818,7 +1155,7 @@ function more(e, date) {
     </div>
     <div class="dbody" style="display:flex;flex-direction:column;gap:10px">
       ${list.map(a => `
-        <div class="card-item" onclick="viewActivity(A.find(x=>x.id==${a.id}))" style="background:#fff;border:1px solid #eaecf0;border-radius:8px;padding:12px;cursor:pointer;transition:border-color 0.15s ease,box-shadow 0.15s ease;" onmouseover="this.style.borderColor='#93c5fd';this.style.boxShadow='0 2px 6px rgba(0,0,0,0.06)'" onmouseout="this.style.borderColor='#eaecf0';this.style.boxShadow='none'">
+        <div class="card-item" onclick="viewActivity(A.find(x=>x.id==${a.id}))" style="background:#fff;border:1px solid #eaecf0;border-radius:8px;padding:12px;cursor:pointer;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
             <span class="event ${C[a.type]}" style="display:inline-flex;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;margin:0">
               <span style="margin-right:4px">${ICON[a.type]}</span> ${a.type}
@@ -852,7 +1189,14 @@ function time() {
   head.innerHTML = "<div></div>" + Array.from({length: days}, (_, i) => {
     let x = new Date(s);
     x.setDate(s.getDate() + i);
-    return `<div>${x.toLocaleDateString("en-US", {weekday: "short"})}<br>${x.getDate()} ${x.toLocaleDateString("en-US", {month: "short"})}</div>`;
+    let dateKey = key(x);
+    let isToday = (dateKey == key(TODAY_DATE));
+    let isFocused = (dateKey == focusedDateStr && !isToday);
+
+    return `<div class="${isToday ? 'col-today' : ''} ${isFocused ? 'col-focused' : ''}">
+      <span class="thead-dayname">${x.toLocaleDateString("en-US", {weekday: "short"})}</span>
+      <span class="thead-daydate">${x.getDate()} ${x.toLocaleDateString("en-US", {month: "short"})}</span>
+    </div>`;
   }).join("");
 
   let o = '<div class="times">' + Array.from({length: 24}, (_, h) => `<div>${pad(h)}:00</div>`).join("") + "</div>";
@@ -860,62 +1204,17 @@ function time() {
   for (let i = 0; i < days; i++) {
     let x = new Date(s);
     x.setDate(s.getDate() + i);
-    let ev = visible().filter(a => a.date == key(x));
-    let nowLine = (key(x) == "2026-08-25") ? '<div class="now" style="top:532px"></div>' : '';
-    
-    // Horizontal Row Stack Mode for Week View (Month-style full-width stacked rows)
-    if (v == "week" && weekLayoutMode == "horizontal") {
-      let slotGroups = {};
-      ev.forEach(a => {
-        let [h] = (a.time || "09:00").split(':').map(Number);
-        let top = h * 40;
-        slotGroups[top] = slotGroups[top] || [];
-        slotGroups[top].push(a);
-      });
+    let dateKey = key(x);
+    let ev = visible().filter(a => a.date == dateKey);
+    let isToday = (dateKey == key(TODAY_DATE));
+    // Red Now Line indicator with dot at 09:15 AM (~370px)
+    let nowLine = isToday ? '<div class="now" style="top:370px"><div class="now-dot"></div></div>' : '';
 
-      let horiHtml = "";
-      Object.keys(slotGroups).forEach(slotTopStr => {
-        let top = Number(slotTopStr);
-        let list = slotGroups[slotTopStr];
-        let maxVis = 2; // Max 2 horizontal rows per hour slot in Week View
-        
-        if (list.length <= maxVis) {
-          list.forEach((a, idx) => {
-            let rowTop = top + (idx * 19) + 2;
-            let safeTitle = a.title || "Untitled Activity";
-            let safeParty = a.party || "Unassigned Party";
-            horiHtml += `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" style="position:absolute;top:${rowTop}px;left:2px;right:2px;height:17px;font-size:10px;padding:1px 6px;margin:0;z-index:3;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;" onclick="eventClick(event,${a.id})">
-              <span class="type-label" style="font-weight:700">${a.type}:</span>
-              <span class="party-name" style="font-weight:600">${safeParty}</span>
-            </div>`;
-          });
-        } else {
-          let a = list[0];
-          let safeTitle = a.title || "Untitled Activity";
-          let safeParty = a.party || "Unassigned Party";
-          horiHtml += `<div class="event ${C[a.type]}" data-tip="${hoverText(a)}" style="position:absolute;top:${top + 2}px;left:2px;right:2px;height:17px;font-size:10px;padding:1px 6px;margin:0;z-index:3;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px;" onclick="eventClick(event,${a.id})">
-            <span class="type-label" style="font-weight:700">${a.type}:</span>
-            <span class="party-name" style="font-weight:600">${safeParty}</span>
-          </div>`;
-          let overflowCount = list.length - 1;
-          horiHtml += `<div class="more" style="position:absolute;top:${top + 20}px;left:2px;right:2px;height:17px;font-size:9.5px;padding:1px 6px;margin:0;z-index:3;cursor:pointer;display:flex;align-items:center;justify-content:center;background:#fce7f3;color:#831843;border-radius:4px;font-weight:700;" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
-        }
-      });
-
-      o += `<div class="col" onclick="slot(event,'${key(x)}')">
-        ${Array.from({length: 24}, () => '<div class="hour"></div>').join("")}
-        ${horiHtml}
-        ${nowLine}
-      </div>`;
-      continue;
-    }
-
-    // Interval-based collision detection with defensive clamping and null fallbacks
     let items = ev.map(a => {
       let [h, m] = (a.time || "09:00").split(':').map(Number);
       let startMin = h * 60 + (m || 0);
-      let durMin = a.durationMin || (a.duration ? (a.duration.includes('hour') ? parseFloat(a.duration)*60 : parseInt(a.duration)) : 30);
-      let endMin = Math.min(1440, startMin + durMin); // Clamp at midnight (23:59)
+      let durMin = a.durationMin || 30;
+      let endMin = Math.min(1440, startMin + durMin);
       return { a, startMin, endMin, durMin, col: 0, maxCols: 1 };
     });
 
@@ -947,7 +1246,7 @@ function time() {
       let count = item.maxCols;
       let index = item.col;
       let slotHeight = Math.round((item.durMin / 60) * 40);
-      let cardHeight = Math.max(18, slotHeight - 2); // 2px vertical padding gap to prevent adjacent slot overlap
+      let cardHeight = Math.max(18, slotHeight - 2);
       let safeTitle = a.title || "Untitled Activity";
       let safeParty = a.party || "Unassigned Party";
 
@@ -981,14 +1280,14 @@ function time() {
             let overflowCount = item.clusterTotal - visibleCardsCount;
             let leftPct = (visibleCardsCount * colWidthPct) + 1;
             let clusterTop = (clusterKey / 60) * 40;
-            return `<div class="more tevent-more" style="position:absolute;top:${clusterTop}px;left:${leftPct}%;width:${cardWidthPct}%;height:36px;background:#fce7f3;color:#831843;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;box-shadow:0 1px 3px rgba(0,0,0,0.1);" onclick="more(event,'${key(x)}')">+${overflowCount} more</div>`;
+            return `<div class="more tevent-more" style="position:absolute;top:${clusterTop}px;left:${leftPct}%;width:${cardWidthPct}%;height:36px;background:#fce7f3;color:#831843;border-radius:6px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;" onclick="more(event,'${dateKey}')">+${overflowCount} more</div>`;
           }
           return "";
         }
       }
     }).join("");
 
-    o += `<div class="col" onclick="slot(event,'${key(x)}')">
+    o += `<div class="col" onclick="slot(event,'${dateKey}')">
       ${Array.from({length: 24}, () => '<div class="hour"></div>').join("")}
       ${evHtml}
       ${nowLine}
@@ -997,12 +1296,12 @@ function time() {
   
   body.innerHTML = o;
 
-  // Auto-scroll inside #tbody to place business hours / earliest activity right in front of user
+  // Auto-scroll timeline to earliest event or 08:00 AM
   const doScroll = () => {
     let body = document.getElementById("tbody");
     if (!body) return;
     let targetEvs = visible().filter(a => v == "day" ? a.date == key(d) : true);
-    let topPx = 320; // Default 8:00 AM (8 * 40px)
+    let topPx = 320; // Default 08:00 AM (8 * 40px)
     if (targetEvs.length > 0) {
       let earliestTop = Math.min(...targetEvs.map(a => {
         let [h, m] = a.time.split(':').map(Number);
@@ -1015,16 +1314,170 @@ function time() {
 
   doScroll();
   setTimeout(doScroll, 10);
-  setTimeout(doScroll, 50);
-  setTimeout(doScroll, 150);
+  setTimeout(doScroll, 80);
 }
 
 function slot(e, date) {
-  if (e.target.closest(".tevent")) return;
+  if (e.target.closest(".tevent, .more")) return;
   let r = e.currentTarget.getBoundingClientRect();
   let y = e.clientY - r.top;
   let h = Math.max(0, Math.min(23, Math.floor(y / 40)));
+  focusedDateStr = date;
   create(date, pad(h) + ":00");
+}
+
+/* =========================================================================
+   PHASE 2: GOOGLE CALENDAR-STYLE DATE PICKER LOGIC
+   ========================================================================= */
+let dpViewingDate = new Date(d);
+let isFastYearMonthOpen = false;
+
+function toggleDatePicker(e) {
+  if (e) e.stopPropagation();
+  let pop = document.getElementById("datePickerPopover");
+  let btn = document.getElementById("datePickerBtn");
+  let isOpen = pop.style.display !== "none";
+  if (isOpen) {
+    closeDatePicker();
+  } else {
+    dpViewingDate = new Date(d);
+    isFastYearMonthOpen = false;
+    renderDatePicker();
+    pop.style.display = "block";
+    btn.classList.add("active");
+  }
+}
+
+function closeDatePicker() {
+  let pop = document.getElementById("datePickerPopover");
+  let btn = document.getElementById("datePickerBtn");
+  if (pop) pop.style.display = "none";
+  if (btn) btn.classList.remove("active");
+  isFastYearMonthOpen = false;
+}
+
+function dpNavMonth(delta) {
+  dpViewingDate.setMonth(dpViewingDate.getMonth() + delta);
+  renderDatePicker();
+}
+
+function toggleFastMonthYear(e) {
+  if (e) e.stopPropagation();
+  isFastYearMonthOpen = !isFastYearMonthOpen;
+  renderDatePicker();
+}
+
+function dpSelectMonth(m) {
+  dpViewingDate.setMonth(m);
+  isFastYearMonthOpen = false;
+  renderDatePicker();
+}
+
+function dpSelectYear(y) {
+  dpViewingDate.setFullYear(y);
+  renderDatePicker();
+}
+
+function dpSelectToday() {
+  selectDateFromPicker(key(TODAY_DATE));
+}
+
+function selectDateFromPicker(dateStr) {
+  d = new Date(dateStr + "T00:00:00");
+  focusedDateStr = dateStr;
+  closeDatePicker();
+  render();
+}
+
+function renderDatePicker() {
+  let y = dpViewingDate.getFullYear();
+  let m = dpViewingDate.getMonth();
+  let monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  
+  document.getElementById("dpMonthYearLabel").textContent = `${monthNames[m]} ${y}`;
+  document.getElementById("dpSelectedInfo").textContent = `${monthNames[d.getMonth()].slice(0,3)} ${d.getDate()}, ${d.getFullYear()}`;
+
+  let fastSelectEl = document.getElementById("dpFastSelect");
+  let gridEl = document.getElementById("dpGrid");
+
+  if (isFastYearMonthOpen) {
+    gridEl.style.display = "none";
+    fastSelectEl.style.display = "block";
+    let monthsHtml = monthNames.map((name, idx) => {
+      let isSel = (idx === m);
+      return `<div class="dp-fast-month ${isSel ? 'selected' : ''}" onclick="dpSelectMonth(${idx})">${name.slice(0,3)}</div>`;
+    }).join("");
+    
+    fastSelectEl.innerHTML = `
+      <div class="dp-fast-year-row">
+        <button type="button" class="dp-nav-btn" onclick="dpSelectYear(${y - 1})">‹</button>
+        <span style="font-weight:700;font-size:13px">${y}</span>
+        <button type="button" class="dp-nav-btn" onclick="dpSelectYear(${y + 1})">›</button>
+      </div>
+      <div class="dp-fast-months-grid">
+        ${monthsHtml}
+      </div>
+    `;
+    return;
+  }
+
+  gridEl.style.display = "grid";
+  fastSelectEl.style.display = "none";
+
+  let firstDay = new Date(y, m, 1);
+  let startOffset = (firstDay.getDay() + 6) % 7;
+  let s = new Date(y, m, 1 - startOffset);
+  let o = "";
+
+  for (let i = 0; i < 42; i++) {
+    let x = new Date(s);
+    x.setDate(s.getDate() + i);
+    let dateKey = key(x);
+    let isOtherMonth = (x.getMonth() !== m);
+    let isToday = (dateKey === key(TODAY_DATE));
+    let isSelected = (dateKey === key(d));
+
+    o += `<button type="button" class="dp-cell ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today-cell' : ''} ${isSelected ? 'selected' : ''}" onclick="selectDateFromPicker('${dateKey}')">
+      ${x.getDate()}
+    </button>`;
+  }
+  gridEl.innerHTML = o;
+}
+
+/* =========================================================================
+   VIEW SELECTOR DROPDOWN (MATCHED TO LIVE)
+   ========================================================================= */
+function toggleViewDropdown(e) {
+  if (e) e.stopPropagation();
+  let menu = document.getElementById("viewDropdownMenu");
+  let isOpen = menu.style.display !== "none";
+  menu.style.display = isOpen ? "none" : "block";
+}
+
+function selectViewMode(mode) {
+  document.getElementById("viewDropdownMenu").style.display = "none";
+  setView(mode);
+}
+
+/* =========================================================================
+   OWNER / FILTER PILL LOGIC (MATCHED TO LIVE)
+   ========================================================================= */
+function ownersMenu(e) {
+  if (e) e.stopPropagation();
+  let menu = document.getElementById("owners");
+  menu.classList.toggle("show");
+}
+
+function clearFilterChip(e) {
+  if (e) e.stopPropagation();
+  sel.clear();
+  render();
+}
+
+function resetAllOwners(e) {
+  if (e) e.stopPropagation();
+  sel.clear();
+  render();
 }
 
 function toggleSelectAllOwners(checked) {
@@ -1037,12 +1490,19 @@ function toggleSelectAllOwners(checked) {
   render();
 }
 
+function owner(o, on) {
+  on ? sel.add(o) : sel.delete(o);
+  render();
+}
+
 function ownerList() {
   let box = document.getElementById("owners");
   let allOwners = [...new Set(A.map(a => a.owner))].sort();
   let allChecked = allOwners.length > 0 && allOwners.every(o => sel.has(o));
   
   let html = `<label class="owner" style="font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:6px;margin-bottom:4px;display:flex;align-items:center;gap:6px;color:#0f172a;"><input type="checkbox" ${allChecked ? "checked" : ""} onchange="toggleSelectAllOwners(this.checked)"> Select All</label>`;
+  
+  html += `<label class="owner"><input type="checkbox" ${sel.size == 1 && sel.has("Me") ? "checked" : ""} onchange="sel.clear(); if(this.checked) sel.add('Me'); render();"> My Activities</label>`;
   
   html += allOwners.map(o => 
     `<label class="owner"><input type="checkbox" ${sel.has(o) ? "checked" : ""} onchange="owner('${o}', this.checked)"> ${o}</label>`
@@ -1052,18 +1512,9 @@ function ownerList() {
   box.innerHTML = html;
 }
 
-function ownersMenu() {
-  let btn = document.getElementById("filterBtn");
-  let menu = document.getElementById("owners");
-  menu.classList.toggle("show");
-  btn.classList.toggle("open", menu.classList.contains("show"));
-}
-
-function owner(o, on) {
-  on ? sel.add(o) : sel.delete(o);
-  render();
-}
-
+/* =========================================================================
+   ACTIVITY CREATION & EDIT DRAWER (PRE-FILLED WITH FOCUSED DATE)
+   ========================================================================= */
 let selectedType = "Call";
 
 function setType(type) {
@@ -1087,10 +1538,10 @@ function create(date = key(d), time = "09:00") {
       <div class="field">
         <label>Activity Type <span style="color:#f04438">*</span></label>
         <div class="type-tabs">
-          <button type="button" class="type-btn active" data-type="Call" onclick="setType('Call')">☎ Calls</button>
+          <button type="button" class="type-btn active" data-type="Call" onclick="setType('Call')">📞 Calls</button>
           <button type="button" class="type-btn" data-type="Email" onclick="setType('Email')">✉ Email</button>
           <button type="button" class="type-btn" data-type="Meeting" onclick="setType('Meeting')">👥 Meeting</button>
-          <button type="button" class="type-btn" data-type="Task" onclick="setType('Task')">📋 Task</button>
+          <button type="button" class="type-btn" data-type="Task" onclick="setType('Task')">✓ Task</button>
         </div>
       </div>
       <div class="field">
@@ -1154,10 +1605,10 @@ function create(date = key(d), time = "09:00") {
         <div class="field">
           <label>Purpose</label>
           <select id="pur">
-            <option value="">Select Call Purpose</option>
-            <option value="Sales Follow-up">Sales Follow-up</option>
-            <option value="Contract Renewal">Contract Renewal</option>
+            <option value="">Select Purpose</option>
             <option value="Rate Negotiation">Rate Negotiation</option>
+            <option value="Contract Renewal">Contract Renewal</option>
+            <option value="Space Confirmation">Space Confirmation</option>
           </select>
         </div>
       </div>
@@ -1165,10 +1616,10 @@ function create(date = key(d), time = "09:00") {
         <div class="field">
           <label>Outcome</label>
           <select id="outc">
-            <option value="">Select Call Outcome</option>
+            <option value="">Select Outcome</option>
             <option value="Connected">Connected</option>
             <option value="Left Voicemail">Left Voicemail</option>
-            <option value="Busy">Busy</option>
+            <option value="No Answer">No Answer</option>
           </select>
         </div>
         <div class="field">
@@ -1190,141 +1641,102 @@ function create(date = key(d), time = "09:00") {
           </select>
         </div>
         <div class="field">
-          <label>Owner</label>
+          <label>Owner <span style="color:#f04438">*</span></label>
           <select id="ow">
-            <option value="Hrucha Malusare">Hrucha Malusare</option>
+            <option value="Me" selected>Me</option>
             <option value="Anita">Anita</option>
             <option value="Rahul">Rahul</option>
-            <option value="Me" selected>Me</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label>Other Team Members</label>
-        <div class="tag-box">
-          <span class="tag-pill">Collins Carter <span class="remove" onclick="this.parentElement.remove()">×</span></span>
-          <span class="tag-pill">Adams Miller <span class="remove" onclick="this.parentElement.remove()">×</span></span>
-        </div>
-      </div>
-      <div class="field">
         <label>Notes</label>
-        <textarea id="notes" placeholder="Enter Notes"></textarea>
+        <textarea id="notes" placeholder="Enter activity notes..." style="height:60px"></textarea>
       </div>
     </div>
     <div class="dfoot">
       <button class="btn" onclick="closeDrawer()">Cancel</button>
-      <button class="btn primary" onclick="save()">Save</button>
+      <button class="btn primary" onclick="save()">Save Activity</button>
     </div>`;
   show();
 }
 
 function save() {
   let titleVal = document.getElementById("ti").value.trim();
+  let partyVal = document.getElementById("pa").value;
   let dtmVal = document.getElementById("dtm").value;
-  if (!titleVal || !dtmVal) return alert("Title and Date/Time are required.");
   
-  let partyVal = document.getElementById("pa").value.trim() || "Unassigned Party";
-  let contactVal = document.getElementById("co").value.trim() || "N/A";
+  if (!titleVal || !partyVal || !dtmVal) {
+    return alert("Title, Party, and Date/Time are required.");
+  }
+
+  let contactVal = document.getElementById("co").value;
   let hh = parseInt(document.getElementById("durH").value) || 0;
   let mm = parseInt(document.getElementById("durM").value) || 0;
   let totalMins = (hh * 60) + mm || 30;
   let durText = hh > 0 ? `${hh}h ${mm > 0 ? mm + 'm' : ''}` : `${mm || 30}m`;
-  
   let [dVal, tVal] = dtmVal.split("T");
-  
-  let a = {
+
+  let newActivity = {
     id: Date.now(),
     type: selectedType,
     title: titleVal,
     party: partyVal,
-    contact: contactVal,
+    contact: contactVal || "N/A",
     duration: durText,
     durationMin: totalMins,
-    owner: document.getElementById("ow").value || "Me",
     date: dVal,
-    time: tVal ? tVal.slice(0, 5) : "09:00"
+    time: tVal ? tVal.slice(0, 5) : "09:00",
+    owner: document.getElementById("ow").value || "Me",
+    status: document.getElementById("st").value || "New",
+    priority: document.getElementById("pri").value || "Medium",
+    notes: document.getElementById("notes").value.trim()
   };
-  
-  A.push(a);
-  d = new Date(a.date + "T00:00:00");
+
+  A.push(newActivity);
   closeDrawer();
   render();
 }
 
 function viewActivity(a) {
+  if (!a) return;
   document.getElementById("drawer").innerHTML = `
     <div class="dhead">
-      <h2>View ${a.type} Details</h2>
+      <div>
+        <h2 style="margin:0">${a.title}</h2>
+        <div style="font-size:12px;color:#667085;margin-top:2px">${a.type} with ${a.party}</div>
+      </div>
       <button class="close" onclick="closeDrawer()">×</button>
     </div>
     <div class="dbody">
-      <div class="field">
-        <label>Activity Type</label>
-        <div style="font-weight:700;font-size:13px;color:#101828">${ICON[a.type]} ${a.type}</div>
-      </div>
-      <div class="field">
-        <label>Title</label>
-        <div style="font-weight:700;font-size:14px;color:#101828">${a.title}</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Date & Time</label>
+          <div style="font-weight:600;color:#101828">${a.date} at ${prettyTime(a.time)}</div>
+        </div>
+        <div class="field">
+          <label>Duration</label>
+          <div style="font-weight:600;color:#101828">${a.duration || '30 mins'}</div>
+        </div>
       </div>
       <div class="grid2">
         <div class="field">
           <label>Party</label>
-          <div style="color:#344054;font-weight:600">${a.party}</div>
+          <div style="color:#344054">${a.party}</div>
         </div>
         <div class="field">
-          <label>Opportunity</label>
-          <div style="color:#344054">${a.opportunity || 'Q3 Freight Deal'}</div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Contacts</label>
-        <div style="color:#344054">${a.contact || 'N/A'}</div>
-      </div>
-      <div class="grid2">
-        <div class="field">
-          <label>Date and Time</label>
-          <div style="color:#344054">${a.date} at ${prettyTime(a.time)}</div>
-        </div>
-        <div class="field">
-          <label>Duration</label>
-          <div style="color:#344054">${a.duration || '30m'}</div>
+          <label>Contact</label>
+          <div style="color:#344054">${a.contact || 'N/A'}</div>
         </div>
       </div>
       <div class="grid2">
-        <div class="field">
-          <label>Direction</label>
-          <div style="color:#344054">${a.direction || 'Outbound'}</div>
-        </div>
-        <div class="field">
-          <label>Purpose</label>
-          <div style="color:#344054">${a.purpose || 'Sales Follow-up'}</div>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="field">
-          <label>Outcome</label>
-          <div style="color:#344054">${a.outcome || 'Connected'}</div>
-        </div>
         <div class="field">
           <label>Status</label>
           <div style="color:#344054"><span style="background:#ecfdf5;color:#047857;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700">${a.status || 'New'}</span></div>
         </div>
-      </div>
-      <div class="grid2">
-        <div class="field">
-          <label>Priority</label>
-          <div style="color:#344054">${a.priority || 'Medium'}</div>
-        </div>
         <div class="field">
           <label>Owner</label>
           <div style="color:#344054">${a.owner}</div>
-        </div>
-      </div>
-      <div class="field">
-        <label>Other Team Members</label>
-        <div class="tag-box" style="border:0;padding:0;min-height:auto">
-          <span class="tag-pill">Collins Carter</span>
-          <span class="tag-pill">Adams Miller</span>
         </div>
       </div>
       <div class="field">
@@ -1364,26 +1776,14 @@ function editActivity(id) {
       <div class="grid2">
         <div class="field">
           <label>Party</label>
-          <input id="pa" value="${a.party}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed" title="Party is locked">
+          <input id="pa" value="${a.party}" disabled style="background:#f8fafc;color:#667085;cursor:not-allowed">
         </div>
-        <div class="field">
-          <label>Opportunity</label>
-          <select id="op">
-            <option value="Q3 Freight Deal" selected>Q3 Freight Deal</option>
-            <option value="Annual Air Charter">Annual Air Charter</option>
-            <option value="Ocean Import Contract">Ocean Import Contract</option>
-          </select>
-        </div>
-      </div>
-      <div class="field">
-        <label>Contacts</label>
-        <input id="co" value="${a.contact || ''}">
-      </div>
-      <div class="grid2">
         <div class="field">
           <label>Date and Time <span style="color:#f04438">*</span></label>
           <input id="dtm" type="datetime-local" value="${dtmVal}">
         </div>
+      </div>
+      <div class="grid2">
         <div class="field">
           <label>Duration</label>
           <div style="display:flex;align-items:center;gap:6px">
@@ -1391,61 +1791,13 @@ function editActivity(id) {
             <input id="durM" type="number" min="0" max="59" value="${mm}" style="width:65px;text-align:center"> <span style="font-size:12px;color:#667085;font-weight:600">m</span>
           </div>
         </div>
-      </div>
-      <div class="grid2">
         <div class="field">
-          <label>Direction</label>
-          <select id="dir">
-            <option value="Outbound" selected>Outbound</option>
-            <option value="Inbound">Inbound</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Purpose</label>
-          <select id="pur">
-            <option value="Sales Follow-up" selected>Sales Follow-up</option>
-            <option value="Contract Renewal">Contract Renewal</option>
-            <option value="Rate Negotiation">Rate Negotiation</option>
-          </select>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="field">
-          <label>Outcome</label>
-          <select id="outc">
-            <option value="Connected" selected>Connected</option>
-            <option value="Left Voicemail">Left Voicemail</option>
-            <option value="Busy">Busy</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Status <span style="color:#f04438">*</span></label>
+          <label>Status</label>
           <select id="st">
-            <option value="New">New</option>
-            <option value="In Progress" selected>In Progress</option>
-            <option value="Completed">Completed</option>
+            <option value="New" ${a.status=='New'?'selected':''}>New</option>
+            <option value="In Progress" ${a.status=='In Progress'?'selected':''}>In Progress</option>
+            <option value="Completed" ${a.status=='Completed'?'selected':''}>Completed</option>
           </select>
-        </div>
-      </div>
-      <div class="grid2">
-        <div class="field">
-          <label>Priority</label>
-          <select id="pri">
-            <option value="Low">Low</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Owner</label>
-          <input id="ow" value="${a.owner}">
-        </div>
-      </div>
-      <div class="field">
-        <label>Other Team Members</label>
-        <div class="tag-box">
-          <span class="tag-pill">Collins Carter <span class="remove" onclick="this.parentElement.remove()">×</span></span>
-          <span class="tag-pill">Adams Miller <span class="remove" onclick="this.parentElement.remove()">×</span></span>
         </div>
       </div>
       <div class="field">
@@ -1467,7 +1819,6 @@ function update(id) {
     let dtmVal = document.getElementById("dtm").value;
     if (!titleVal || !dtmVal) return alert("Title and Date/Time are required.");
     
-    let contactVal = document.getElementById("co").value.trim();
     let hh = parseInt(document.getElementById("durH").value) || 0;
     let mm = parseInt(document.getElementById("durM").value) || 0;
     let totalMins = (hh * 60) + mm || 30;
@@ -1475,12 +1826,11 @@ function update(id) {
     let [dVal, tVal] = dtmVal.split("T");
 
     a.title = titleVal;
-    a.contact = contactVal || "N/A";
     a.duration = durText;
     a.durationMin = totalMins;
     a.date = dVal;
     a.time = tVal ? tVal.slice(0, 5) : "09:00";
-    a.owner = document.getElementById("ow").value.trim() || "Me";
+    a.status = document.getElementById("st").value;
     a.notes = document.getElementById("notes").value.trim();
   }
   closeDrawer();
@@ -1496,30 +1846,27 @@ function closeDrawer(e) {
   document.getElementById("drawerbg").classList.remove("show");
 }
 
-function showToast(message) {
-  let container = document.getElementById("toastContainer");
-  if (!container) {
-    container = document.createElement("div");
-    container.id = "toastContainer";
-    container.className = "toast-container";
-    document.body.appendChild(container);
-  }
-  let toast = document.createElement("div");
-  toast.className = "toast";
-  toast.innerHTML = `<span style="color:#f04438;font-size:15px;flex:none">⚠️</span> <span>${message}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    toast.style.transition = "opacity 0.2s ease";
-    setTimeout(() => toast.remove(), 200);
-  }, 4000);
-}
-
+/* Global Click & Keyboard Handlers */
 document.addEventListener("click", e => {
   if (!e.target.closest(".filter")) {
-    document.getElementById("owners").classList.remove("show");
-    let btn = document.getElementById("filterBtn");
-    if (btn) btn.classList.remove("open");
+    let owners = document.getElementById("owners");
+    if (owners) owners.classList.remove("show");
+  }
+  if (!e.target.closest(".datepicker-wrapper")) {
+    closeDatePicker();
+  }
+  if (!e.target.closest(".view-dropdown-container")) {
+    let viewMenu = document.getElementById("viewDropdownMenu");
+    if (viewMenu) viewMenu.style.display = "none";
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    closeDatePicker();
+    closeDrawer();
+    let viewMenu = document.getElementById("viewDropdownMenu");
+    if (viewMenu) viewMenu.style.display = "none";
   }
 });
 
