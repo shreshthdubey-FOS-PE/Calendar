@@ -824,11 +824,6 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
       </div>
       
       <div class="right">
-        <!-- Week Layout Toggle (Discreet) -->
-        <div id="weekLayoutToggle" style="display:none;background:#f8fafc;padding:2px;border-radius:6px;border:1px solid #e2e8f0;align-items:center;gap:2px;">
-          <button id="btnVert" style="padding:3px 8px;font-size:11px;font-weight:600;border:0;background:#fff;color:#0f172a;border-radius:4px;cursor:pointer;" onclick="setWeekLayout('vertical')">📊 Vertical</button>
-          <button id="btnHori" style="padding:3px 8px;font-size:11px;font-weight:500;border:0;background:transparent;color:#64748b;border-radius:4px;cursor:pointer;" onclick="setWeekLayout('horizontal')">☰ Horizontal</button>
-        </div>
 
         <!-- Filter Pill (Matched to Live: My Activities × ▾) -->
         <div class="filter" style="position:relative;">
@@ -1035,12 +1030,6 @@ function render() {
   document.querySelectorAll(".view-dropdown-item").forEach(item => {
     item.classList.toggle("active", item.dataset.v == v);
   });
-  
-  // Layout toggle visibility
-  let toggle = document.getElementById("weekLayoutToggle");
-  if (toggle) {
-    toggle.style.display = (v == "week") ? "inline-flex" : "none";
-  }
 
   // Update Filter Pill Label
   let allOwners = [...new Set(A.map(a => a.owner))];
